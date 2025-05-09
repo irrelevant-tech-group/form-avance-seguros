@@ -1,70 +1,24 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FormSection from '@/components/FormSection';
-import FormInput from '@/components/FormInput';
-import FormSelect from '@/components/FormSelect';
-import FormRadioGroup from '@/components/FormRadioGroup';
-import FormFileUpload from '@/components/FormFileUpload';
-import PhoneInput from '@/components/PhoneInput';
-import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { CheckCircle, AlertTriangle, ArrowRight, Phone, Mail, Shield, Clock, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Generate years from 2010 to 2025
-const years = Array.from({ length: 16 }, (_, i) => {
-  const year = 2010 + i;
-  return { value: year.toString(), label: year.toString() };
-});
+// Componentes modulares para cada paso
+import PersonalInfoStep from './steps/PersonalInfoStep';
+import VehicleInfoStep from './steps/VehicleInfoStep';
+import DocumentationStep from './steps/DocumentationStep';
 
-const vehicleTypes = [
-  { value: 'sedan', label: 'Sedán' },
-  { value: 'suv', label: 'SUV / Camioneta' },
-  { value: 'hatchback', label: 'Hatchback' },
-  { value: 'pickup', label: 'Pickup' },
-  { value: 'van', label: 'Van / Furgoneta' },
-  { value: 'deportivo', label: 'Deportivo' },
-];
-
-const vehicleBrands = [
-  { value: 'chevrolet', label: 'Chevrolet' },
-  { value: 'mazda', label: 'Mazda' },
-  { value: 'renault', label: 'Renault' },
-  { value: 'toyota', label: 'Toyota' },
-  { value: 'nissan', label: 'Nissan' },
-  { value: 'ford', label: 'Ford' },
-  { value: 'kia', label: 'Kia' },
-  { value: 'hyundai', label: 'Hyundai' },
-  { value: 'bmw', label: 'BMW' },
-  { value: 'mercedes', label: 'Mercedes-Benz' },
-];
-
-const vehicleModels = [
-  { value: 'modelo1', label: 'Modelo 1' },
-  { value: 'modelo2', label: 'Modelo 2' },
-  { value: 'modelo3', label: 'Modelo 3' },
-  { value: 'modelo4', label: 'Modelo 4' },
-];
-
-const vehicleTrim = [
-  { value: 'basico', label: 'Básico' },
-  { value: 'intermedio', label: 'Intermedio' },
-  { value: 'full', label: 'Full Equipo' },
-  { value: 'premium', label: 'Premium' },
-];
-
-const transmission = [
-  { value: 'automatica', label: 'Automática' },
-  { value: 'mecanica', label: 'Mecánica' },
-];
-
-const yesNoOptions = [
-  { value: 'si', label: 'Sí' },
-  { value: 'no', label: 'No' },
-];
+// Animaciones para las secciones
+const sectionVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
 
 const QuotePage = () => {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
+    // Información del solicitante
     isCollective: 'no',
     ownerName: '',
     identification: '',
@@ -73,6 +27,7 @@ const QuotePage = () => {
     phone: '',
     email: '',
     
+    // Datos del vehículo
     licensePlate: '',
     vehicleType: '',
     brand: '',
@@ -84,14 +39,24 @@ const QuotePage = () => {
     invoiceValue: '',
     isNewVehicle: false,
     
+    // Información adicional
     additionalEmail: '',
   });
   
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [files, setFiles] = useState<File[]>([]);
+  const [errors, setErrors] = useState({});
+  const [files, setFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // Asegurarse de que isSubmitting se reinicie al cambiar entre pasos
+  useEffect(() => {
+    // Cuando el currentStep cambia, asegurarse de que isSubmitting es false
+    setIsSubmitting(false);
+    console.log(`Step changed to ${currentStep}, isSubmitting reset to false`);
+  }, [currentStep]);
+
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({
       ...prev,
@@ -108,7 +73,7 @@ const QuotePage = () => {
     }
   };
   
-  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRadioChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({
       ...prev,
@@ -125,7 +90,7 @@ const QuotePage = () => {
     }
   };
   
-  const handlePhoneChange = (value: string) => {
+  const handlePhoneChange = (value) => {
     setFormState((prev) => ({
       ...prev,
       phone: value,
@@ -141,11 +106,11 @@ const QuotePage = () => {
     }
   };
   
-  const handleFileChange = (newFiles: File[]) => {
+  const handleFileChange = (newFiles) => {
     setFiles(newFiles);
   };
   
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
     setFormState((prev) => ({
       ...prev,
@@ -153,319 +118,334 @@ const QuotePage = () => {
     }));
   };
   
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateCurrentStep = () => {
+    const newErrors = {};
     
-    // Required fields validation
-    if (!formState.ownerName) {
-      newErrors.ownerName = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.identification) {
-      newErrors.identification = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.birthDate) {
-      newErrors.birthDate = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.address) {
-      newErrors.address = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.phone) {
-      newErrors.phone = 'Este campo es obligatorio';
-    }
-    
-    if (formState.email && !/\S+@\S+\.\S+/.test(formState.email)) {
-      newErrors.email = 'Correo electrónico inválido';
-    }
-    
-    if (!formState.vehicleType) {
-      newErrors.vehicleType = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.brand) {
-      newErrors.brand = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.model) {
-      newErrors.model = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.year) {
-      newErrors.year = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.trim) {
-      newErrors.trim = 'Este campo es obligatorio';
-    }
-    
-    if (!formState.transmission) {
-      newErrors.transmission = 'Este campo es obligatorio';
-    }
-    
-    if (formState.additionalEmail && !/\S+@\S+\.\S+/.test(formState.additionalEmail)) {
-      newErrors.additionalEmail = 'Correo electrónico inválido';
+    if (currentStep === 1) {
+      // Validar información del solicitante
+      if (!formState.ownerName) newErrors.ownerName = 'Este campo es obligatorio';
+      if (!formState.identification) newErrors.identification = 'Este campo es obligatorio';
+      if (!formState.birthDate) newErrors.birthDate = 'Este campo es obligatorio';
+      if (!formState.address) newErrors.address = 'Este campo es obligatorio';
+      if (!formState.phone) newErrors.phone = 'Este campo es obligatorio';
+      if (formState.email && !/\S+@\S+\.\S+/.test(formState.email)) {
+        newErrors.email = 'Correo electrónico inválido';
+      }
+    } else if (currentStep === 2) {
+      // Validar datos del vehículo
+      if (!formState.vehicleType) newErrors.vehicleType = 'Este campo es obligatorio';
+      if (!formState.brand) newErrors.brand = 'Este campo es obligatorio';
+      if (!formState.model) newErrors.model = 'Este campo es obligatorio';
+      if (!formState.year) newErrors.year = 'Este campo es obligatorio';
+      if (!formState.trim) newErrors.trim = 'Este campo es obligatorio';
+      if (!formState.transmission) newErrors.transmission = 'Este campo es obligatorio';
+    } else if (currentStep === 3) {
+      // Validar información adicional
+      if (formState.additionalEmail && !/\S+@\S+\.\S+/.test(formState.additionalEmail)) {
+        newErrors.additionalEmail = 'Correo electrónico inválido';
+      }
+      // Aquí no hay campos obligatorios, solo validación del formato de email
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleNextStep = () => {
+    if (validateCurrentStep()) {
+      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      toast.error('Por favor completa todos los campos obligatorios', {
+        icon: <AlertTriangle className="text-red-500" />,
+      });
+    }
+  };
+  
+  const handlePrevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  const validateForm = () => {
+    const allErrors = {};
     
-    if (!validateForm()) {
-      toast.error('Hay errores en el formulario. Por favor revisa los campos marcados.');
+    // Required fields validation
+    if (!formState.ownerName) allErrors.ownerName = 'Este campo es obligatorio';
+    if (!formState.identification) allErrors.identification = 'Este campo es obligatorio';
+    if (!formState.birthDate) allErrors.birthDate = 'Este campo es obligatorio';
+    if (!formState.address) allErrors.address = 'Este campo es obligatorio';
+    if (!formState.phone) allErrors.phone = 'Este campo es obligatorio';
+    if (formState.email && !/\S+@\S+\.\S+/.test(formState.email)) allErrors.email = 'Correo electrónico inválido';
+    
+    if (!formState.vehicleType) allErrors.vehicleType = 'Este campo es obligatorio';
+    if (!formState.brand) allErrors.brand = 'Este campo es obligatorio';
+    if (!formState.model) allErrors.model = 'Este campo es obligatorio';
+    if (!formState.year) allErrors.year = 'Este campo es obligatorio';
+    if (!formState.trim) allErrors.trim = 'Este campo es obligatorio';
+    if (!formState.transmission) allErrors.transmission = 'Este campo es obligatorio';
+    
+    if (formState.additionalEmail && !/\S+@\S+\.\S+/.test(formState.additionalEmail)) {
+      allErrors.additionalEmail = 'Correo electrónico inválido';
+    }
+    
+    setErrors(allErrors);
+    return Object.keys(allErrors).length === 0;
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Submit attempted, current isSubmitting state:", isSubmitting);
+    
+    // Evitar múltiples envíos
+    if (isSubmitting) {
+      console.log("Submission already in progress, ignoring");
       return;
     }
     
+    if (!validateForm()) {
+      toast.error('Hay errores en el formulario. Por favor revisa los campos marcados.', {
+        icon: <AlertTriangle className="text-red-500" />,
+      });
+      return;
+    }
+    
+    console.log("Starting submission process");
     setIsSubmitting(true);
     
     try {
       // Simulate API call
+      console.log("Simulating API call...");
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Generate a random quote ID
       const quoteId = Math.floor(100000 + Math.random() * 900000).toString();
       
+      toast.success('¡Formulario enviado con éxito!', {
+        icon: <CheckCircle className="text-green-500" />,
+      });
+      
       // Redirect to success page with the quote ID
       navigate(`/exito?id=${quoteId}`);
     } catch (error) {
-      toast.error('Ocurrió un error al enviar la solicitud. Por favor intenta nuevamente.');
+      console.error("Submission error:", error);
+      toast.error('Ocurrió un error al enviar la solicitud. Por favor intenta nuevamente.', {
+        icon: <AlertTriangle className="text-red-500" />,
+      });
+    } finally {
+      console.log("Submission process complete, resetting isSubmitting");
       setIsSubmitting(false);
     }
   };
 
+  // Renderizado condicional basado en el paso actual
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <motion.div
+            key="step1"
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
+          >
+            <PersonalInfoStep 
+              formState={formState}
+              errors={errors}
+              handleInputChange={handleInputChange}
+              handleRadioChange={handleRadioChange}
+              handlePhoneChange={handlePhoneChange}
+            />
+          </motion.div>
+        );
+      
+      case 2:
+        return (
+          <motion.div
+            key="step2"
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
+          >
+            <VehicleInfoStep 
+              formState={formState}
+              errors={errors}
+              handleInputChange={handleInputChange}
+              handleCheckboxChange={handleCheckboxChange}
+            />
+          </motion.div>
+        );
+      
+      case 3:
+        return (
+          <motion.div
+            key="step3"
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
+          >
+            <DocumentationStep 
+              formState={formState}
+              errors={errors}
+              handleInputChange={handleInputChange}
+              handleFileChange={handleFileChange}
+              files={files}
+            />
+          </motion.div>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="bg-gray-100 min-h-screen py-10 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-gray-50 min-h-screen">
+      {/* Header con gradiente y logo */}
+      <div className="bg-gradient-to-r from-[#0A4958] to-[#0A6578] py-4 px-4 shadow-md">
+        <div className="max-w-5xl mx-auto flex justify-between items-center">
+          <img
+            src="https://storage.googleapis.com/cluvi/Imagenes/logo-avance-seguro.jpg"
+            alt="Avance Seguros"
+            className="h-12 md:h-16"
+          />
+          <div className="hidden md:flex items-center space-x-4 text-white">
+            <span className="flex items-center">
+              <Phone size={18} className="mr-2" />
+              <a href="tel:+57300123456" className="hover:underline">+57 300 123 4567</a>
+            </span>
+            <span className="flex items-center">
+              <Mail size={18} className="mr-2" />
+              <a href="mailto:contacto@avanceseguros.com" className="hover:underline">contacto@avanceseguros.com</a>
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-primary-800 mb-2">Cotización de Póliza de Auto</h1>
-          <p className="text-gray-600">Completa el formulario para recibir una cotización personalizada</p>
+          <motion.h1 
+            className="text-3xl md:text-4xl font-bold text-[#0A4958] mb-3"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            Cotización de Póliza de Auto
+          </motion.h1>
+          <motion.p 
+            className="text-gray-600 md:text-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Completa el formulario para recibir una cotización personalizada
+          </motion.p>
         </div>
         
-        <form onSubmit={handleSubmit}>
-          <FormSection title="Información del Solicitante">
-            <FormRadioGroup
-              name="isCollective"
-              label="¿Deseas cotizar Póliza Colectiva de Autos?"
-              options={yesNoOptions}
-              value={formState.isCollective}
-              onChange={handleRadioChange}
-              error={errors.isCollective}
-              className="mb-6"
-            />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormInput
-                label="Nombre del propietario final"
-                name="ownerName"
-                value={formState.ownerName}
-                onChange={handleInputChange}
-                required
-                error={errors.ownerName}
-              />
-              
-              <FormInput
-                label="Cédula"
-                name="identification"
-                value={formState.identification}
-                onChange={handleInputChange}
-                required
-                error={errors.identification}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormInput
-                label="Fecha de nacimiento"
-                name="birthDate"
-                type="date"
-                value={formState.birthDate}
-                onChange={handleInputChange}
-                required
-                error={errors.birthDate}
-              />
-              
-              <FormInput
-                label="Dirección"
-                name="address"
-                value={formState.address}
-                onChange={handleInputChange}
-                required
-                error={errors.address}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <PhoneInput
-                label="Celular"
-                name="phone"
-                value={formState.phone}
-                onChange={handlePhoneChange}
-                required
-                error={errors.phone}
-              />
-              
-              <FormInput
-                label="Email"
-                name="email"
-                type="email"
-                value={formState.email}
-                onChange={handleInputChange}
-                error={errors.email}
-              />
-            </div>
-          </FormSection>
-          
-          <FormSection title="Datos del Vehículo">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormInput
-                label="Placa del vehículo"
-                name="licensePlate"
-                value={formState.licensePlate}
-                onChange={handleInputChange}
-                error={errors.licensePlate}
-                placeholder="ABC123"
-              />
-              
-              <FormSelect
-                label="Tipo de vehículo"
-                name="vehicleType"
-                options={vehicleTypes}
-                value={formState.vehicleType}
-                onChange={handleInputChange}
-                required
-                error={errors.vehicleType}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormSelect
-                label="Marca"
-                name="brand"
-                options={vehicleBrands}
-                value={formState.brand}
-                onChange={handleInputChange}
-                required
-                error={errors.brand}
-              />
-              
-              <FormSelect
-                label="Modelo"
-                name="model"
-                options={vehicleModels}
-                value={formState.model}
-                onChange={handleInputChange}
-                required
-                error={errors.model}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormSelect
-                label="Año"
-                name="year"
-                options={years}
-                value={formState.year}
-                onChange={handleInputChange}
-                required
-                error={errors.year}
-              />
-              
-              <FormSelect
-                label="Corte"
-                name="trim"
-                options={vehicleTrim}
-                value={formState.trim}
-                onChange={handleInputChange}
-                required
-                error={errors.trim}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormSelect
-                label="Transmisión"
-                name="transmission"
-                options={transmission}
-                value={formState.transmission}
-                onChange={handleInputChange}
-                required
-                error={errors.transmission}
-              />
-              
-              <FormSelect
-                label="¿El vehículo tiene o tendrá prenda con alguna entidad?"
-                name="hasLien"
-                options={yesNoOptions}
-                value={formState.hasLien}
-                onChange={handleInputChange}
-                required
-                error={errors.hasLien}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <FormInput
-                  label="Valor de la factura"
-                  name="invoiceValue"
-                  type="number"
-                  value={formState.invoiceValue}
-                  onChange={handleInputChange}
-                  error={errors.invoiceValue}
-                  placeholder="0"
-                />
+        {/* Barra de progreso */}
+        <div className="mb-10">
+          <div className="flex justify-between mb-2">
+            {Array.from({ length: totalSteps }).map((_, idx) => (
+              <div 
+                key={idx}
+                className={`flex items-center justify-center rounded-full w-8 h-8 text-sm ${
+                  idx + 1 <= currentStep ? 'bg-[#0A4958] text-white' : 'bg-gray-200 text-gray-600'
+                } transition-colors duration-300 font-medium`}
+              >
+                {idx + 1}
               </div>
-              
-              <div className="flex items-center mt-8">
-                <input
-                  type="checkbox"
-                  id="isNewVehicle"
-                  name="isNewVehicle"
-                  checked={formState.isNewVehicle}
-                  onChange={handleCheckboxChange}
-                  className="w-4 h-4 text-primary-800 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <label htmlFor="isNewVehicle" className="ml-2 text-sm text-gray-700">
-                  Aplica para vehículo 0 km
-                </label>
-              </div>
-            </div>
-          </FormSection>
-          
-          <FormSection title="Documentación Adicional">
-            <FormFileUpload
-              label="Adjuntar foto de la matrícula y/o copia del seguro actual"
-              accept=".jpg,.jpeg,.png,.pdf"
-              onChange={handleFileChange}
-            />
-          </FormSection>
-          
-          <FormSection title="Confirmación y Contacto" className="mb-10">
-            <FormInput
-              label="Correo adicional para seguimiento (opcional)"
-              name="additionalEmail"
-              type="email"
-              value={formState.additionalEmail}
-              onChange={handleInputChange}
-              error={errors.additionalEmail}
-            />
-          </FormSection>
-          
-          <div className="flex justify-center mb-10">
-            <Button
-              type="submit"
-              className="bg-secondary hover:bg-secondary-700 text-white font-semibold py-3 px-8 rounded-md text-lg"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Enviando...' : 'Solicitar Cotización'}
-            </Button>
+            ))}
           </div>
-        </form>
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
+            <div 
+              className="bg-[#0A4958] h-2 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>Información personal</span>
+            <span>Datos del vehículo</span>
+            <span>Documentación</span>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden mb-8">
+          <form onSubmit={handleSubmit}>
+            <div className="p-6 md:p-8">
+              {renderStep()}
+              
+              <div className="flex justify-between mt-10">
+                {currentStep > 1 ? (
+                  <button
+                    type="button"
+                    onClick={handlePrevStep}
+                    className="flex items-center px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="mr-1">Atrás</span>
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+                
+                {currentStep < totalSteps ? (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="flex items-center px-5 py-2 bg-[#0A4958] text-white rounded-md hover:bg-[#083a47] transition-colors"
+                  >
+                    <span className="mr-1">Siguiente</span>
+                    <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="flex items-center px-6 py-3 bg-[#C69C3F] hover:bg-[#b38a33] text-white font-semibold rounded-md transition-colors"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="mr-2">Enviando</span>
+                        <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="mr-2">Solicitar Cotización</span>
+                        <ArrowRight size={18} />
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        {/* Información adicional y confianza */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center mb-3 text-[#0A4958]">
+              <Shield size={24} className="mr-2" />
+              <h3 className="font-semibold">Protección Garantizada</h3>
+            </div>
+            <p className="text-gray-600 text-sm">Trabajamos con las mejores aseguradoras para brindarte la protección que necesitas.</p>
+          </div>
+          
+          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center mb-3 text-[#0A4958]">
+              <Clock size={24} className="mr-2" />
+              <h3 className="font-semibold">Respuesta Rápida</h3>
+            </div>
+            <p className="text-gray-600 text-sm">Recibirás tu cotización personalizada en menos de 24 horas hábiles.</p>
+          </div>
+          
+          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center mb-3 text-[#0A4958]">
+              <DollarSign size={24} className="mr-2" />
+              <h3 className="font-semibold">Mejor Precio</h3>
+            </div>
+            <p className="text-gray-600 text-sm">Comparamos opciones para ofrecerte el mejor precio con la cobertura adecuada.</p>
+          </div>
+        </div>
       </div>
     </div>
   );
