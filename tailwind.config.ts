@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,16 +26,34 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#0A4958',
+					foreground: '#FFFFFF',
+					100: '#E0EEF1',
+					200: '#C1DDE3',
+					300: '#A2CCD6',
+					400: '#83BBC8',
+					500: '#64AABA',
+					600: '#4599AC',
+					700: '#26889E',
+					800: '#0A4958',
+					900: '#083A46'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					DEFAULT: '#C69C3F',
+					foreground: '#FFFFFF',
+					100: '#F9F2E0',
+					200: '#F3E5C2',
+					300: '#EDD8A3',
+					400: '#E7CB85',
+					500: '#E1BE66',
+					600: '#DBB148',
+					700: '#D5A429',
+					800: '#C69C3F',
+					900: '#B88E30'
 				},
 				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
+					DEFAULT: '#E57373',
+					foreground: '#FFFFFF'
 				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
@@ -89,6 +108,15 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			fontFamily: {
+				'montserrat': ['Montserrat', 'sans-serif'],
+				'poppins': ['Poppins', 'sans-serif'],
+				'opensans': ['Open Sans', 'sans-serif'],
+				'nunito': ['Nunito', 'sans-serif']
+			},
+			spacing: {
+				'18': '4.5rem',
 			}
 		}
 	},
