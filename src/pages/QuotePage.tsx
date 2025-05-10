@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, AlertTriangle, ArrowRight, Phone, Mail, Shield, Clock, DollarSign } from 'lucide-react';
@@ -48,13 +48,6 @@ const QuotePage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
-
-  // Asegurarse de que isSubmitting se reinicie al cambiar entre pasos
-  useEffect(() => {
-    // Cuando el currentStep cambia, asegurarse de que isSubmitting es false
-    setIsSubmitting(false);
-    console.log(`Step changed to ${currentStep}, isSubmitting reset to false`);
-  }, [currentStep]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -193,29 +186,45 @@ const QuotePage = () => {
     return Object.keys(allErrors).length === 0;
   };
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("Submit attempted, current isSubmitting state:", isSubmitting);
-    
+  // SOLUCIÓN: NO usar form submit, sino manejar click directamente
+  const handleSubmitClick = async () => {
     // Evitar múltiples envíos
     if (isSubmitting) {
-      console.log("Submission already in progress, ignoring");
       return;
     }
     
+    // Validación completa del formulario solo al enviar
     if (!validateForm()) {
       toast.error('Hay errores en el formulario. Por favor revisa los campos marcados.', {
         icon: <AlertTriangle className="text-red-500" />,
       });
+      
+      // Si hay errores, volver al primer paso con errores
+      for (let step = 1; step <= totalSteps; step++) {
+        const hasStepErrors = Object.keys(errors).some(key => {
+          if (step === 1) {
+            return ['ownerName', 'identification', 'birthDate', 'address', 'phone', 'email'].includes(key);
+          } else if (step === 2) {
+            return ['vehicleType', 'brand', 'model', 'year', 'trim', 'transmission'].includes(key);
+          } else if (step === 3) {
+            return ['additionalEmail'].includes(key);
+          }
+          return false;
+        });
+        
+        if (hasStepErrors) {
+          setCurrentStep(step);
+          break;
+        }
+      }
+      
       return;
     }
     
-    console.log("Starting submission process");
     setIsSubmitting(true);
     
     try {
       // Simulate API call
-      console.log("Simulating API call...");
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Generate a random quote ID
@@ -233,7 +242,6 @@ const QuotePage = () => {
         icon: <AlertTriangle className="text-red-500" />,
       });
     } finally {
-      console.log("Submission process complete, resetting isSubmitting");
       setIsSubmitting(false);
     }
   };
@@ -299,6 +307,7 @@ const QuotePage = () => {
     }
   };
 
+  // CAMBIO CRÍTICO: NO usar <form> en absoluto, solo un div
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Header con gradiente y logo */}
@@ -370,7 +379,8 @@ const QuotePage = () => {
         </div>
         
         <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden mb-8">
-          <form onSubmit={handleSubmit}>
+          {/* NO usar form, solo un div container */}
+          <div>
             <div className="p-6 md:p-8">
               {renderStep()}
               
@@ -398,8 +408,9 @@ const QuotePage = () => {
                   </button>
                 ) : (
                   <button
-                    type="submit"
-                    className="flex items-center px-6 py-3 bg-[#C69C3F] hover:bg-[#b38a33] text-white font-semibold rounded-md transition-colors"
+                    type="button"
+                    onClick={handleSubmitClick}
+                    className="flex items-center px-6 py-3 bg-[#C69C3F] hover:bg-[#b38a33] text-white font-semibold rounded-md transition-colors disabled:opacity-75 disabled:cursor-not-allowed"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
@@ -417,7 +428,7 @@ const QuotePage = () => {
                 )}
               </div>
             </div>
-          </form>
+          </div>
         </div>
         
         {/* Información adicional y confianza */}

@@ -16,15 +16,6 @@ const PersonalInfoStep = ({
       icon={<SectionIcon icon={User} color="blue" />}
       description="Datos personales del propietario del vehículo"
     >
-      <FormRadioGroup
-        name="isCollective"
-        label="¿Deseas cotizar Póliza Colectiva de Autos?"
-        options={yesNoOptions}
-        value={formState.isCollective}
-        onChange={handleRadioChange}
-        error={errors.isCollective}
-        className="mb-6"
-      />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormInput

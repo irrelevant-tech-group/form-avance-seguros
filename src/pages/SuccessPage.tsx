@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ArrowRight, Calendar, Phone, Mail, ChevronRight, Shield } from 'lucide-react';
+import { CheckCircle, ArrowRight, Calendar, Phone, Mail, ChevronRight, Shield, Clock, Headset, Download, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-// Componente faltante
-import { Clock, Headset } from 'lucide-react';
 
 const SuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [quoteId, setQuoteId] = useState('');
   const [timeLeft, setTimeLeft] = useState(24); // Horas estimadas de respuesta
+  const [showAnimatedLogo, setShowAnimatedLogo] = useState(true);
   
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -28,302 +27,362 @@ const SuccessPage = () => {
       setTimeLeft(prev => Math.max(0, prev - 1));
     }, 60000); // Actualiza cada minuto
     
-    return () => clearInterval(timer);
+    // Cambiar a logo estático después de 4 segundos (tiempo suficiente para la animación)
+    const logoTimer = setTimeout(() => {
+      setShowAnimatedLogo(false);
+    }, 4000);
+    
+    return () => {
+      clearInterval(timer);
+      clearTimeout(logoTimer);
+    };
   }, [location]);
+
+  // Función para descargar el resumen de cotización
+  const downloadQuoteSummary = () => {
+    // Crear contenido del resumen
+    const content = `
+      RESUMEN DE COTIZACIÓN
+      ---------------------
+      Número de Referencia: ${quoteId}
+      Fecha de Solicitud: ${new Date().toLocaleDateString('es-CO', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}
+      
+      Estado: En proceso
+      Tiempo estimado: Máximo 24 horas hábiles
+      
+      Contacto:
+      Tel: +57 300 123 4567
+      Email: contacto@avanceseguros.com
+      
+      Avance Seguros - Tu aliado en protección
+    `;
+    
+    const element = document.createElement('a');
+    const file = new Blob([content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `cotizacion-${quoteId}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  // Función para compartir
+  const shareQuote = async () => {
+    const url = window.location.href;
+    const text = `¡He solicitado una cotización de seguro de auto con Avance Seguros! Número de referencia: ${quoteId}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Cotización de Seguro de Auto',
+          text: text,
+          url: url,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      // Fallback para navegadores que no soportan la API de compartir
+      navigator.clipboard.writeText(`${text} ${url}`);
+      alert('Información copiada al portapapeles');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header con gradiente y logo */}
-      <div className="bg-gradient-to-r from-[#0A4958] to-[#0A6578] py-4 px-4 shadow-md">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <img
-            src="https://storage.googleapis.com/cluvi/Imagenes/logo-avance-seguro.jpg"
-            alt="Avance Seguros"
-            className="h-12 md:h-16"
-          />
-          <div className="hidden md:flex items-center space-x-4 text-white">
-            <span className="flex items-center">
-              <Phone size={18} className="mr-2" />
-              <a href="tel:+57300123456" className="hover:underline">+57 300 123 4567</a>
-            </span>
-            <span className="flex items-center">
-              <Mail size={18} className="mr-2" />
-              <a href="mailto:contacto@avanceseguros.com" className="hover:underline">contacto@avanceseguros.com</a>
-            </span>
+      {/* Header con gradiente y logo/gif */}
+      <div className="bg-gradient-to-r from-[#0A4958] to-[#0A6578] py-4 px-4 shadow-md relative overflow-hidden">
+        <div className="max-w-5xl mx-auto flex justify-between items-center relative z-10">
+          <div className="flex items-center">
+            {showAnimatedLogo ? (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="relative"
+              >
+                <img
+                  src="https://storage.googleapis.com/cluvi/Imagenes/animacion-avance-seguros-unscreen.gif"
+                  alt="Animación Avance Seguros"
+                  className="h-12 md:h-16"
+                  style={{ mixBlendMode: 'normal' }}
+                />
+              </motion.div>
+            ) : (
+              <motion.img
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                src="https://storage.googleapis.com/cluvi/Imagenes/logo-avance-seguro.jpg"
+                alt="Avance Seguros"
+                className="h-12 md:h-16"
+              />
+            )}
           </div>
+         
         </div>
+        
+        {/* Partículas animadas de fondo */}
+        <motion.div 
+          className="absolute inset-0 overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+        >
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-white/20 rounded-full"
+              initial={{
+                x: `${Math.random() * 100}%`,
+                y: "100%",
+              }}
+              animate={{
+                y: "-10%",
+                opacity: [0, 1, 0],
+              }}
+              transition={{
+                duration: Math.random() * 3 + 5,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          ))}
+        </motion.div>
       </div>
       
       <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* Tarjeta principal de éxito */}
+        {/* Tarjeta principal de éxito con animaciones mejoradas */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="bg-white rounded-xl shadow-lg overflow-hidden mb-8"
         >
-          {/* Cabecera con gradiente */}
-          <div className="bg-gradient-to-r from-[#0A4958] to-[#0A6578] py-8 px-6 text-center">
+          {/* Cabecera con gradiente y animaciones */}
+          <div className="bg-gradient-to-r from-[#0A4958] to-[#0A6578] py-8 px-6 text-center relative overflow-hidden">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
               transition={{ 
                 type: "spring",
                 stiffness: 260,
                 damping: 20,
-                delay: 0.2
+                delay: 0.3
               }}
-              className="w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center mb-6"
+              className="w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center mb-6 relative z-10"
             >
               <CheckCircle size={60} className="text-green-500" />
             </motion.div>
             
             <motion.h1 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
               className="text-3xl font-bold text-white mb-2"
             >
               ¡Cotización Solicitada Exitosamente!
             </motion.h1>
             
             <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
               className="text-gray-100 text-lg"
             >
               Revisaremos tu solicitud y te contactaremos pronto
             </motion.p>
+            
+            {/* Efecto de confetti */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.5 }}
+              className="absolute inset-0 overflow-hidden"
+            >
+              {[...Array(30)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-3 h-8 rounded"
+                  style={{
+                    background: `hsl(${Math.random() * 360}, 70%, 70%)`,
+                    left: `${Math.random() * 100}%`,
+                    top: "-10%",
+                  }}
+                  animate={{
+                    y: "120%",
+                    rotate: Math.random() * 720 - 360,
+                    opacity: [1, 0],
+                  }}
+                  transition={{
+                    duration: Math.random() * 2 + 2,
+                    delay: Math.random() * 2,
+                    ease: "easeIn",
+                  }}
+                />
+              ))}
+            </motion.div>
           </div>
           
           <div className="p-8">
-            {/* Número de radicado */}
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-8">
+            {/* Número de radicado y acciones rápidas */}
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-6 border border-gray-200 mb-8">
               <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Número de radicado:</p>
-                  <p className="text-2xl font-semibold text-[#0A4958]">{quoteId}</p>
+                  <p className="text-2xl font-bold text-[#0A4958] font-mono">{quoteId}</p>
+                  <div className="mt-4 md:mt-0">
+                    <p className="text-sm text-gray-500 mb-1">Fecha de solicitud:</p>
+                    <p className="font-medium">{new Date().toLocaleDateString('es-CO', { 
+                      day: 'numeric', 
+                      month: 'long', 
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</p>
+                  </div>
                 </div>
-                <div className="mt-4 md:mt-0">
-                  <p className="text-sm text-gray-500 mb-1">Fecha de solicitud:</p>
-                  <p className="font-medium">{new Date().toLocaleDateString('es-CO', { 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}</p>
-                </div>
+               
               </div>
             </div>
             
-            {/* Tiempo estimado de respuesta */}
-            <div className="bg-blue-50 rounded-lg p-5 border border-blue-200 mb-8">
+            {/* Tiempo estimado con progreso visual */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5 border border-blue-200 mb-8">
               <div className="flex items-start">
                 <div className="mr-4 mt-1">
                   <div className="bg-blue-100 rounded-full p-2">
                     <Clock className="h-6 w-6 text-blue-600" />
                   </div>
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-semibold text-blue-900 mb-1">Tiempo estimado de respuesta</h3>
                   <p className="text-blue-800">
                     Te contactaremos en un máximo de 24 horas hábiles para brindarte tu cotización personalizada.
                   </p>
-                  <div className="mt-2 font-medium text-blue-900">
-                    Tiempo restante: aproximadamente {timeLeft} {timeLeft === 1 ? 'hora' : 'horas'}
+                  <div className="mt-3 relative">
+                    <div className="flex justify-between text-sm text-blue-700 mb-2">
+                      <span>Procesando...</span>
+                      <span className="font-medium">{timeLeft} {timeLeft === 1 ? 'hora' : 'horas'}</span>
+                    </div>
+                    <div className="w-full bg-blue-100 rounded-full h-2">
+                      <motion.div
+                        className="bg-blue-600 h-2 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(((24 - timeLeft) / 24) * 100, 100)}%` }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            {/* Próximos pasos */}
+            {/* Próximos pasos con animación stagger */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-[#0A4958] mb-4">
                 Próximos pasos:
               </h2>
-              <div className="space-y-6">
-                <div className="flex items-start">
-                  <div className="bg-[#C69C3F] text-white rounded-full w-10 h-10 flex items-center justify-center text-lg font-semibold mr-4 shrink-0">
-                    1
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900 mb-1">Análisis de solicitud</h3>
-                    <p className="text-gray-600">Nuestro equipo revisará la información proporcionada para encontrar las mejores opciones de cobertura para tu vehículo.</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-[#C69C3F] text-white rounded-full w-10 h-10 flex items-center justify-center text-lg font-semibold mr-4 shrink-0">
-                    2
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900 mb-1">Envío de cotización</h3>
-                    <p className="text-gray-600">Recibirás un correo electrónico con los detalles de tu cotización personalizada, incluyendo coberturas y precios.</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-[#C69C3F] text-white rounded-full w-10 h-10 flex items-center justify-center text-lg font-semibold mr-4 shrink-0">
-                    3
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900 mb-1">Asesoría personalizada</h3>
-                    <p className="text-gray-600">Un asesor especializado se pondrá en contacto contigo para resolver todas tus dudas y ayudarte a elegir la mejor opción.</p>
-                  </div>
-                </div>
-              </div>
+              <motion.div 
+                className="space-y-6"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.2
+                    }
+                  }
+                }}
+              >
+                {[
+                  {
+                    step: 1,
+                    title: "Análisis de solicitud",
+                    description: "Nuestro equipo revisará la información proporcionada para encontrar las mejores opciones de cobertura para tu vehículo."
+                  },
+                  {
+                    step: 2,
+                    title: "Envío de cotización",
+                    description: "Recibirás un correo electrónico con los detalles de tu cotización personalizada, incluyendo coberturas y precios."
+                  },
+                  {
+                    step: 3,
+                    title: "Asesoría personalizada",
+                    description: "Un asesor especializado se pondrá en contacto contigo para resolver todas tus dudas y ayudarte a elegir la mejor opción."
+                  }
+                ].map((item) => (
+                  <motion.div
+                    key={item.step}
+                    variants={{
+                      hidden: { opacity: 0, x: -50 },
+                      visible: { opacity: 1, x: 0 }
+                    }}
+                    className="flex items-start"
+                  >
+                    <motion.div 
+                      className="bg-[#C69C3F] text-white rounded-full w-10 h-10 flex items-center justify-center text-lg font-semibold mr-4 shrink-0"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {item.step}
+                    </motion.div>
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">{item.title}</h3>
+                      <p className="text-gray-600">{item.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
             
-            {/* Botones de acción */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <Button
-                onClick={() => navigate('/')}
-                variant="outline"
-                className="border-[#0A4958] text-[#0A4958] hover:bg-[#0A4958]/10"
-              >
-                Volver al inicio
-              </Button>
-              
-              <Button
-                onClick={() => navigate('/seguros')}
-                variant="outline"
-                className="border-[#C69C3F] text-[#C69C3F] hover:bg-[#C69C3F]/10"
-              >
-                Ver productos relacionados
-              </Button>
-              
-              <Button
-                onClick={() => window.location.href = 'tel:+57300123456'}
-                className="bg-[#C69C3F] hover:bg-[#b38a33] text-white"
-              >
-                Contactar asesor
-              </Button>
-            </div>
-            
-            {/* Añadir al calendario */}
-            <div className="flex justify-center mb-6">
-              <button className="flex items-center text-[#0A4958] hover:text-[#083a47] font-medium">
-                <Calendar size={18} className="mr-2" />
-                <span>Agregar recordatorio al calendario</span>
-              </button>
-            </div>
+            {/* Botones de acción mejorados */}
+         
           </div>
         </motion.div>
         
-        {/* Tarjeta de información adicional */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-8">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold text-[#0A4958] mb-4">Información Importante</h2>
-            
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <div className="mt-1 mr-3 text-[#C69C3F]">
-                  <ChevronRight size={18} />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">¿Cómo me contactarán?</h3>
-                  <p className="text-gray-600 text-sm">Nos comunicaremos contigo a través del número telefónico o correo electrónico que proporcionaste en el formulario.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="mt-1 mr-3 text-[#C69C3F]">
-                  <ChevronRight size={18} />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">¿Qué documentos necesitaré?</h3>
-                  <p className="text-gray-600 text-sm">Para la cotización no necesitas documentos adicionales, pero para la emisión de la póliza se requerirá la matrícula del vehículo y tu documento de identidad.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="mt-1 mr-3 text-[#C69C3F]">
-                  <ChevronRight size={18} />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">¿Cuándo entra en vigencia la póliza?</h3>
-                  <p className="text-gray-600 text-sm">Una vez que selecciones y pagues la póliza, la cobertura comenzará según la fecha que acordemos, generalmente desde las 00:00 horas del día siguiente.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+       
         
         {/* Tarjetas de beneficios */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <div className="flex items-center mb-3 text-[#0A4958]">
-              <Shield size={24} className="mr-2" />
-              <h3 className="font-semibold">Cobertura Completa</h3>
-            </div>
-            <p className="text-gray-600 text-sm">Ofrecemos pólizas con las mejores coberturas para proteger tu vehículo contra todo tipo de riesgos.</p>
-          </div>
-          
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <div className="flex items-center mb-3 text-[#0A4958]">
-              <Clock size={24} className="mr-2" />
-              <h3 className="font-semibold">Proceso Rápido</h3>
-            </div>
-            <p className="text-gray-600 text-sm">Emitimos tu póliza en tiempo récord para que disfrutes de la protección que necesitas sin esperas.</p>
-          </div>
-          
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <div className="flex items-center mb-3 text-[#0A4958]">
-              <Headset size={24} className="mr-2" />
-              <h3 className="font-semibold">Soporte 24/7</h3>
-            </div>
-            <p className="text-gray-600 text-sm">Nuestro equipo de asistencia está disponible las 24 horas para atenderte en caso de emergencia.</p>
-          </div>
-        </div>
         
         {/* Contacto directo */}
-        <div className="text-center">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 0.5 }}
+          className="text-center"
+        >
           <p className="text-gray-600 mb-3">¿Necesitas asistencia inmediata?</p>
           <div className="flex flex-col md:flex-row justify-center space-y-3 md:space-y-0 md:space-x-6">
-            <a href="tel:+57300123456" className="flex items-center justify-center text-[#0A4958] hover:text-[#083a47] font-medium">
+            <motion.a 
+              href="tel:+57300123456" 
+              className="flex items-center justify-center text-[#0A4958] hover:text-[#083a47] font-medium"
+              whileHover={{ scale: 1.05 }}
+            >
               <Phone size={18} className="mr-2" />
               <span>+57 300 123 4567</span>
-            </a>
-            <a href="mailto:contacto@avanceseguros.com" className="flex items-center justify-center text-[#0A4958] hover:text-[#083a47] font-medium">
+            </motion.a>
+            <motion.a 
+              href="mailto:contacto@avanceseguros.com" 
+              className="flex items-center justify-center text-[#0A4958] hover:text-[#083a47] font-medium"
+              whileHover={{ scale: 1.05 }}
+            >
               <Mail size={18} className="mr-2" />
               <span>contacto@avanceseguros.com</span>
-            </a>
+            </motion.a>
           </div>
-        </div>
+        </motion.div>
       </div>
       
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-6 mt-12">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <img 
-                src="https://storage.googleapis.com/cluvi/Imagenes/logo-avance-seguro.jpg" 
-                alt="Avance Seguros" 
-                className="h-10 mb-2"
-              />
-              <p className="text-gray-400 text-sm">Tu aliado en protección y tranquilidad</p>
-            </div>
-            
-            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-8 text-center md:text-left">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Inicio</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Seguros</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Contacto</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-700 mt-6 pt-6 text-sm text-gray-400 text-center">
-            <p>© {new Date().getFullYear()} Avance Seguros. Todos los derechos reservados.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
-
-
 
 export default SuccessPage;
