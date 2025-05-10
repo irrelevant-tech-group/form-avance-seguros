@@ -1,0 +1,31 @@
+[build]
+  functions = "netlify/functions"
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  node_bundler = "nft"
+  external_node_modules = ["resend"]
+
+[dev]
+  targetPort = 8080
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers para CORS
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type"
+    Access-Control-Allow-Methods = "GET,HEAD,OPTIONS,POST,PUT"
+
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type"
+    Access-Control-Allow-Methods = "POST, OPTIONS"

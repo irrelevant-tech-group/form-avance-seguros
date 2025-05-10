@@ -251,11 +251,31 @@ const HealthQuoteForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
       // Generate a random quote ID
       const quoteId = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Determinar el email a usar
+      const userEmail = formState.email;
+      
+      // Enviar correos usando la función serverless
+      const response = await fetch('/.netlify/functions/send-quote-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          formData: formState,
+          quoteId: quoteId,
+          quoteType: 'salud',
+          userEmail: userEmail
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Error al enviar los correos');
+      }
       
       toast.success('¡Formulario enviado con éxito!', {
         icon: <CheckCircle className="text-green-500" />,
@@ -265,7 +285,13 @@ const HealthQuoteForm = () => {
       navigate(`/exito?id=${quoteId}&type=salud`);
     } catch (error) {
       console.error("Submission error:", error);
-      toast.error('Ocurrió un error al enviar la solicitud. Por favor intenta nuevamente.', {
+      
+      // Mensaje específico basado en el tipo de error
+      const errorMessage = error.message === 'Failed to fetch' 
+        ? 'Problema de conexión. Por favor, verifica tu internet e intenta nuevamente.'
+        : error.message || 'Ocurrió un error al enviar la solicitud. Por favor intenta nuevamente.';
+      
+      toast.error(errorMessage, {
         icon: <AlertTriangle className="text-red-500" />,
       });
     } finally {
