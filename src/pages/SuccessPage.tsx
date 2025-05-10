@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ArrowRight, Calendar, Phone, Mail, ChevronRight, Shield, Clock, Headset, Download, Share2 } from 'lucide-react';
+import { CheckCircle, ArrowRight, Calendar, Phone, Mail, ChevronRight, Shield, Clock, Headset, Download, Share2, Car, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const SuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [quoteId, setQuoteId] = useState('');
+  const [quoteType, setQuoteType] = useState('vehiculos');
   const [timeLeft, setTimeLeft] = useState(24); // Horas estimadas de respuesta
   const [showAnimatedLogo, setShowAnimatedLogo] = useState(true);
   
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
+    const type = params.get('type') || 'vehiculos';
     
     if (id) {
       setQuoteId(id);
@@ -21,6 +23,8 @@ const SuccessPage = () => {
       // Generate random ID if none was provided
       setQuoteId(Math.floor(100000 + Math.random() * 900000).toString());
     }
+    
+    setQuoteType(type);
     
     // Actualizar el contador de tiempo
     const timer = setInterval(() => {
@@ -45,6 +49,7 @@ const SuccessPage = () => {
       RESUMEN DE COTIZACIÓN
       ---------------------
       Número de Referencia: ${quoteId}
+      Tipo de Seguro: ${quoteType === 'vehiculos' ? 'Póliza de Auto' : quoteType === 'vida' ? 'Póliza de Vida' : 'Póliza de Salud'}
       Fecha de Solicitud: ${new Date().toLocaleDateString('es-CO', { 
         day: 'numeric', 
         month: 'long', 
@@ -75,12 +80,12 @@ const SuccessPage = () => {
   // Función para compartir
   const shareQuote = async () => {
     const url = window.location.href;
-    const text = `¡He solicitado una cotización de seguro de auto con Avance Seguros! Número de referencia: ${quoteId}`;
+    const text = `¡He solicitado una cotización de ${quoteType === 'vehiculos' ? 'seguro de auto' : quoteType === 'vida' ? 'seguro de vida' : 'seguro de salud'} con Avance Seguros! Número de referencia: ${quoteId}`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Cotización de Seguro de Auto',
+          title: `Cotización de ${quoteType === 'vehiculos' ? 'Seguro de Auto' : quoteType === 'vida' ? 'Seguro de Vida' : 'Seguro de Salud'}`,
           text: text,
           url: url,
         });
@@ -93,6 +98,82 @@ const SuccessPage = () => {
       alert('Información copiada al portapapeles');
     }
   };
+
+  // Contenido específico según el tipo de seguro
+  const getQuoteTypeContent = () => {
+    if (quoteType === 'vida') {
+      return {
+        icon: <Shield size={60} className="text-green-500" />,
+        title: 'Tu futuro está asegurado',
+        subtitle: 'Estamos preparando la mejor cotización para proteger a ti y a tu familia',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis de protección",
+            description: "Revisaremos tu información para encontrar las mejores opciones de cobertura de vida que se adapten a tus necesidades."
+          },
+          {
+            step: 2,
+            title: "Opciones de protección",
+            description: "Recibirás una cotización detallada con diferentes planes de vida diseñados para brindar seguridad a tu familia."
+          },
+          {
+            step: 3,
+            title: "Asesoría personalizada",
+            description: "Un especialista en seguros de vida te contactará para explicarte todos los beneficios y coberturas disponibles."
+          }
+        ]
+      };
+    } else if (quoteType === 'vehiculos') {
+      return {
+        icon: <Car size={60} className="text-green-500" />,
+        title: 'Tu vehículo está en buenas manos',
+        subtitle: 'Estamos preparando la mejor cotización para proteger tu auto',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis del vehículo",
+            description: "Nuestro equipo revisará la información de tu vehículo para encontrar las mejores opciones de cobertura disponibles en el mercado."
+          },
+          {
+            step: 2,
+            title: "Cotización personalizada",
+            description: "Recibirás un correo electrónico con los detalles de tu cotización, incluyendo diferentes planes y coberturas."
+          },
+          {
+            step: 3,
+            title: "Asesoría especializada",
+            description: "Un asesor especializado en seguros de auto se contactará contigo para resolver tus dudas y ayudarte a elegir."
+          }
+        ]
+      };
+    } else {
+      return {
+        icon: <Heart size={60} className="text-green-500" />,
+        title: 'Tu salud es nuestra prioridad',
+        subtitle: 'Estamos preparando la mejor cotización para cuidar de ti y tu familia',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis médico",
+            description: "Revisaremos tu información médica para encontrar las mejores opciones de cobertura de salud según tus necesidades."
+          },
+          {
+            step: 2,
+            title: "Planes de salud",
+            description: "Recibirás una cotización detallada con diferentes planes de salud que se adapten a tu perfil y presupuesto."
+          },
+          {
+            step: 3,
+            title: "Asesoría médica",
+            description: "Un asesor especializado en seguros de salud te contactará para explicarte todos los beneficios y coberturas."
+          }
+        ]
+      };
+    }
+  };
+
+  const quoteContent = getQuoteTypeContent();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -178,7 +259,7 @@ const SuccessPage = () => {
               }}
               className="w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center mb-6 relative z-10"
             >
-              <CheckCircle size={60} className="text-green-500" />
+              {quoteContent.icon}
             </motion.div>
             
             <motion.h1 
@@ -196,7 +277,7 @@ const SuccessPage = () => {
               transition={{ duration: 0.5, delay: 0.7 }}
               className="text-gray-100 text-lg"
             >
-              Revisaremos tu solicitud y te contactaremos pronto
+              {quoteContent.subtitle}
             </motion.p>
             
             {/* Efecto de confetti */}
@@ -302,23 +383,7 @@ const SuccessPage = () => {
                   }
                 }}
               >
-                {[
-                  {
-                    step: 1,
-                    title: "Análisis de solicitud",
-                    description: "Nuestro equipo revisará la información proporcionada para encontrar las mejores opciones de cobertura para tu vehículo."
-                  },
-                  {
-                    step: 2,
-                    title: "Envío de cotización",
-                    description: "Recibirás un correo electrónico con los detalles de tu cotización personalizada, incluyendo coberturas y precios."
-                  },
-                  {
-                    step: 3,
-                    title: "Asesoría personalizada",
-                    description: "Un asesor especializado se pondrá en contacto contigo para resolver todas tus dudas y ayudarte a elegir la mejor opción."
-                  }
-                ].map((item) => (
+                {quoteContent.steps.map((item) => (
                   <motion.div
                     key={item.step}
                     variants={{
@@ -342,15 +407,8 @@ const SuccessPage = () => {
                 ))}
               </motion.div>
             </div>
-            
-            {/* Botones de acción mejorados */}
-         
           </div>
         </motion.div>
-        
-       
-        
-        {/* Tarjetas de beneficios */}
         
         {/* Contacto directo */}
         <motion.div 
