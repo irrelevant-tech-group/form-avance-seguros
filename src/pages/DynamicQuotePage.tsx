@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertTriangle, ArrowRight, Phone, Mail, Shield, Clock, DollarSign, Car, Heart, ChevronRight } from 'lucide-react';
+import { CheckCircle, AlertTriangle, ArrowRight, Phone, Mail, Shield, Clock, DollarSign, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Componentes para cada tipo de cotización
@@ -19,6 +19,13 @@ const DynamicQuotePage = () => {
   const navigate = useNavigate();
   const [selectedQuoteType, setSelectedQuoteType] = useState(null);
 
+  // URLs de iconos para productos
+  const productIconUrls = {
+    car: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Autos.png",
+    heart: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Salud.png", 
+    shield: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Vida.png"
+  };
+
   // Si no se ha seleccionado el tipo de cotización, mostrar el selector
   if (!selectedQuoteType) {
     return (
@@ -27,7 +34,7 @@ const DynamicQuotePage = () => {
         <div className="bg-gradient-to-r from-[#0A4958] to-[#0A6578] py-4 px-4 shadow-md">
           <div className="max-w-5xl mx-auto flex justify-between items-center">
             <img
-              src="https://storage.googleapis.com/cluvi/Imagenes/logo-avance-seguro.jpg"
+              src="https://storage.googleapis.com/cluvi/Imagenes/logo_avance_blanco.png"
               alt="Avance Seguros"
               className="h-12 md:h-16"
             />
@@ -74,10 +81,13 @@ const DynamicQuotePage = () => {
               onClick={() => setSelectedQuoteType('vehiculos')}
               className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
-              <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Car className="w-24 h-24 text-white/20" />
-                  <Car className="w-20 h-20 text-white absolute" />
+              <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
+                <div className="bg-white rounded-full p-4 shadow-lg">
+                  <img 
+                    src={productIconUrls.car} 
+                    alt="Icono Auto" 
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
               </div>
               
@@ -117,10 +127,13 @@ const DynamicQuotePage = () => {
               onClick={() => setSelectedQuoteType('salud')}
               className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
-              <div className="relative h-48 bg-gradient-to-br from-[#C69C3F] to-[#D5A429] overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Heart className="w-24 h-24 text-white/20" />
-                  <Heart className="w-20 h-20 text-white absolute" />
+              <div className="relative h-48 bg-gradient-to-br from-[#C69C3F] to-[#D5A429] overflow-hidden flex items-center justify-center">
+                <div className="bg-white rounded-full p-4 shadow-lg">
+                  <img 
+                    src={productIconUrls.heart} 
+                    alt="Icono Salud" 
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
               </div>
               
@@ -160,10 +173,13 @@ const DynamicQuotePage = () => {
               onClick={() => setSelectedQuoteType('vida')}
               className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
-              <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Shield className="w-24 h-24 text-white/20" />
-                  <Shield className="w-20 h-20 text-white absolute" />
+              <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
+                <div className="bg-white rounded-full p-4 shadow-lg">
+                  <img 
+                    src={productIconUrls.shield} 
+                    alt="Icono Vida" 
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
               </div>
               
@@ -196,7 +212,7 @@ const DynamicQuotePage = () => {
             </motion.div>
           </div>
 
-          {/* Información adicional y confianza */}
+          {/* Información adicional y confianza - MANTIENE ICONOS DE LUCIDE-REACT */}
           <motion.div 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -246,11 +262,11 @@ const DynamicQuotePage = () => {
           <div className="hidden md:flex items-center space-x-4 text-white">
             <span className="flex items-center">
               <Phone size={18} className="mr-2" />
-              <a href="tel:+57300123456" className="hover:underline">+57 300 123 4567</a>
+              <a href="tel:+57300123456" className="hover:underline">(310)-848-35-62</a>
             </span>
             <span className="flex items-center">
               <Mail size={18} className="mr-2" />
-              <a href="mailto:contacto@avanceseguros.com" className="hover:underline">contacto@avanceseguros.com</a>
+              <a href="mailto:contacto@avanceseguros.com" className="hover:underline">info@avanceseguros.com</a>
             </span>
           </div>
         </div>
