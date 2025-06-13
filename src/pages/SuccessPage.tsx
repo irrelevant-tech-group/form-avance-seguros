@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ArrowRight, Calendar, Phone, Mail, ChevronRight, Shield, Clock, Headset, Download, Share2, Car, Heart } from 'lucide-react';
+import { CheckCircle, ArrowRight, Calendar, Phone, Mail, ChevronRight, Shield, Clock, Headset, Download, Share2, Car, Heart, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const SuccessPage = () => {
@@ -45,11 +45,19 @@ const SuccessPage = () => {
   // Función para descargar el resumen de cotización
   const downloadQuoteSummary = () => {
     // Crear contenido del resumen
+    const typeLabel = {
+      'vehiculos': 'Póliza de Auto',
+      'vida': 'Póliza de Vida',
+      'salud': 'Póliza de Salud',
+      'mascotas': 'Póliza de Mascotas',
+      'hogar': 'Póliza de Hogar'
+    };
+
     const content = `
       RESUMEN DE COTIZACIÓN
       ---------------------
       Número de Referencia: ${quoteId}
-      Tipo de Seguro: ${quoteType === 'vehiculos' ? 'Póliza de Auto' : quoteType === 'vida' ? 'Póliza de Vida' : 'Póliza de Salud'}
+      Tipo de Seguro: ${typeLabel[quoteType] || 'Póliza de Seguro'}
       Fecha de Solicitud: ${new Date().toLocaleDateString('es-CO', { 
         day: 'numeric', 
         month: 'long', 
@@ -79,13 +87,21 @@ const SuccessPage = () => {
 
   // Función para compartir
   const shareQuote = async () => {
+    const typeLabel = {
+      'vehiculos': 'seguro de auto',
+      'vida': 'seguro de vida',
+      'salud': 'seguro de salud',
+      'mascotas': 'seguro de mascotas',
+      'hogar': 'seguro de hogar'
+    };
+
     const url = window.location.href;
-    const text = `¡He solicitado una cotización de ${quoteType === 'vehiculos' ? 'seguro de auto' : quoteType === 'vida' ? 'seguro de vida' : 'seguro de salud'} con Avance Seguros! Número de referencia: ${quoteId}`;
+    const text = `¡He solicitado una cotización de ${typeLabel[quoteType] || 'seguro'} con Avance Seguros! Número de referencia: ${quoteId}`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Cotización de ${quoteType === 'vehiculos' ? 'Seguro de Auto' : quoteType === 'vida' ? 'Seguro de Vida' : 'Seguro de Salud'}`,
+          title: `Cotización de ${typeLabel[quoteType] || 'Seguro'}`,
           text: text,
           url: url,
         });
@@ -147,7 +163,7 @@ const SuccessPage = () => {
           }
         ]
       };
-    } else {
+    } else if (quoteType === 'salud') {
       return {
         icon: <Heart size={60} className="text-green-500" />,
         title: 'Tu salud es nuestra prioridad',
@@ -167,6 +183,75 @@ const SuccessPage = () => {
             step: 3,
             title: "Asesoría médica",
             description: "Un asesor especializado en seguros de salud te contactará para explicarte todos los beneficios y coberturas."
+          }
+        ]
+      };
+    } else if (quoteType === 'mascotas') {
+      return {
+        icon: <Heart size={60} className="text-orange-500" />,
+        title: 'Tu mascota está protegida',
+        subtitle: 'Estamos preparando la mejor cotización para cuidar de tu mejor amigo',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis veterinario",
+            description: "Revisaremos la información de tu mascota para encontrar las mejores opciones de cobertura veterinaria disponibles."
+          },
+          {
+            step: 2,
+            title: "Planes de protección",
+            description: "Recibirás una cotización detallada con diferentes planes que cubren desde consultas hasta emergencias veterinarias."
+          },
+          {
+            step: 3,
+            title: "Asesoría especializada",
+            description: "Un asesor especializado en seguros para mascotas te contactará para explicarte todas las coberturas disponibles."
+          }
+        ]
+      };
+    } else if (quoteType === 'hogar') {
+      return {
+        icon: <Home size={60} className="text-green-500" />,
+        title: 'Tu hogar está protegido',
+        subtitle: 'Estamos preparando la mejor cotización para proteger tu hogar y bienes',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis del hogar",
+            description: "Revisaremos la información de tu propiedad para encontrar las mejores opciones de cobertura estructural y de contenidos."
+          },
+          {
+            step: 2,
+            title: "Planes de protección",
+            description: "Recibirás una cotización detallada con diferentes planes que cubren desde la estructura hasta tus bienes personales."
+          },
+          {
+            step: 3,
+            title: "Asesoría especializada",
+            description: "Un asesor especializado en seguros de hogar te contactará para explicarte todas las coberturas disponibles."
+          }
+        ]
+      };
+    } else {
+      return {
+        icon: <Shield size={60} className="text-green-500" />,
+        title: 'Tu solicitud está en proceso',
+        subtitle: 'Estamos preparando la mejor cotización para ti',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis de información",
+            description: "Nuestro equipo revisará tu información para encontrar las mejores opciones disponibles en el mercado."
+          },
+          {
+            step: 2,
+            title: "Cotización personalizada",
+            description: "Recibirás un correo electrónico con los detalles de tu cotización, incluyendo diferentes planes y coberturas."
+          },
+          {
+            step: 3,
+            title: "Asesoría especializada",
+            description: "Un asesor especializado se contactará contigo para resolver tus dudas y ayudarte a elegir."
           }
         ]
       };
