@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ArrowRight, Calendar, Phone, Mail, ChevronRight, Shield, Clock, Headset, Download, Share2, Car, Heart, Home } from 'lucide-react';
+import { CheckCircle, ArrowRight, Calendar, Phone, Mail, ChevronRight, Shield, Clock, Headset, Download, Share2, Car, Heart, Home, Building, Truck, HardHat, FileCheck, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const SuccessPage = () => {
@@ -50,7 +50,13 @@ const SuccessPage = () => {
       'vida': 'Póliza de Vida',
       'salud': 'Póliza de Salud',
       'mascotas': 'Póliza de Mascotas',
-      'hogar': 'Póliza de Hogar'
+      'hogar': 'Póliza de Hogar',
+      'corporativos': 'Corporativos y PYMES',
+      'responsabilidad-civil': 'Responsabilidad Civil',
+      'transporte': 'Transporte',
+      'construccion': 'Todo Riesgo Construcción',
+      'cumplimiento': 'Cumplimiento',
+      'arl': 'ARL'
     };
 
     const content = `
@@ -70,8 +76,8 @@ const SuccessPage = () => {
       Tiempo estimado: Máximo 24 horas hábiles
       
       Contacto:
-      Tel: +57 300 123 4567
-      Email: contacto@avanceseguros.com
+      Tel: (310)-848-35-62
+      Email: info@avanceseguros.com
       
       Avance Seguros - Tu aliado en protección
     `;
@@ -92,7 +98,13 @@ const SuccessPage = () => {
       'vida': 'seguro de vida',
       'salud': 'seguro de salud',
       'mascotas': 'seguro de mascotas',
-      'hogar': 'seguro de hogar'
+      'hogar': 'seguro de hogar',
+      'corporativos': 'seguro corporativo',
+      'responsabilidad-civil': 'seguro de responsabilidad civil',
+      'transporte': 'seguro de transporte',
+      'construccion': 'seguro de construcción',
+      'cumplimiento': 'póliza de cumplimiento',
+      'arl': 'seguro ARL'
     };
 
     const url = window.location.href;
@@ -117,7 +129,145 @@ const SuccessPage = () => {
 
   // Contenido específico según el tipo de seguro
   const getQuoteTypeContent = () => {
-    if (quoteType === 'vida') {
+    if (quoteType === 'corporativos') {
+      return {
+        icon: <Building size={60} className="text-green-500" />,
+        title: 'Tu empresa está protegida',
+        subtitle: 'Estamos preparando la mejor cotización para proteger tu negocio',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis empresarial",
+            description: "Nuestro equipo especializado revisará las necesidades específicas de tu empresa y sector."
+          },
+          {
+            step: 2,
+            title: "Propuesta personalizada",
+            description: "Recibirás una cotización completa con diferentes opciones de cobertura empresarial."
+          },
+          {
+            step: 3,
+            title: "Asesoría especializada",
+            description: "Un consultor empresarial te contactará para una reunión personalizada y resolver todas tus dudas."
+          }
+        ]
+      };
+    } else if (quoteType === 'responsabilidad-civil') {
+      return {
+        icon: <Shield size={60} className="text-green-500" />,
+        title: 'Tu responsabilidad está cubierta',
+        subtitle: 'Estamos preparando la mejor cotización de responsabilidad civil',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis de riesgos",
+            description: "Evaluaremos los riesgos específicos de tu actividad empresarial."
+          },
+          {
+            step: 2,
+            title: "Cobertura integral",
+            description: "Te presentaremos opciones de cobertura que protejan tu empresa ante terceros."
+          },
+          {
+            step: 3,
+            title: "Asesoría legal",
+            description: "Un especialista en RC te explicará todas las coberturas y beneficios."
+          }
+        ]
+      };
+    } else if (quoteType === 'transporte') {
+      return {
+        icon: <Truck size={60} className="text-green-500" />,
+        title: 'Tus mercancías están seguras',
+        subtitle: 'Estamos preparando la mejor cotización de transporte',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis logístico",
+            description: "Evaluaremos tus rutas, tipos de mercancía y riesgos de transporte."
+          },
+          {
+            step: 2,
+            title: "Cobertura nacional e internacional",
+            description: "Te ofreceremos opciones para proteger tus envíos en cualquier destino."
+          },
+          {
+            step: 3,
+            title: "Asesoría especializada",
+            description: "Un experto en seguros de transporte te contactará para personalizar tu cobertura."
+          }
+        ]
+      };
+    } else if (quoteType === 'construccion') {
+      return {
+        icon: <HardHat size={60} className="text-green-500" />,
+        title: 'Tu obra está protegida',
+        subtitle: 'Estamos preparando la mejor cotización para construcción',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis de obra",
+            description: "Evaluaremos el tipo de construcción, valor y riesgos específicos del proyecto."
+          },
+          {
+            step: 2,
+            title: "Cobertura todo riesgo",
+            description: "Te presentaremos opciones que cubran desde la construcción hasta el mantenimiento."
+          },
+          {
+            step: 3,
+            title: "Asesoría técnica",
+            description: "Un especialista en construcción te explicará todas las coberturas disponibles."
+          }
+        ]
+      };
+    } else if (quoteType === 'cumplimiento') {
+      return {
+        icon: <FileCheck size={60} className="text-green-500" />,
+        title: 'Tus contratos están garantizados',
+        subtitle: 'Estamos preparando la mejor cotización de cumplimiento',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis contractual",
+            description: "Revisaremos tus contratos y obligaciones para determinar las garantías necesarias."
+          },
+          {
+            step: 2,
+            title: "Pólizas de garantía",
+            description: "Te ofreceremos diferentes tipos de pólizas de cumplimiento según tus necesidades."
+          },
+          {
+            step: 3,
+            title: "Asesoría jurídica",
+            description: "Un especialista en pólizas de cumplimiento te guiará en todo el proceso."
+          }
+        ]
+      };
+    } else if (quoteType === 'arl') {
+      return {
+        icon: <Users size={60} className="text-green-500" />,
+        title: 'Tus empleados están protegidos',
+        subtitle: 'Estamos preparando la mejor cotización de ARL',
+        steps: [
+          {
+            step: 1,
+            title: "Análisis laboral",
+            description: "Evaluaremos los riesgos laborales específicos de tu empresa y empleados."
+          },
+          {
+            step: 2,
+            title: "Cobertura integral",
+            description: "Te presentaremos opciones completas de protección laboral y capacitación."
+          },
+          {
+            step: 3,
+            title: "Asesoría en seguridad",
+            description: "Un especialista en riesgos laborales te contactará para implementar el mejor plan."
+          }
+        ]
+      };
+    } else if (quoteType === 'vida') {
       return {
         icon: <Shield size={60} className="text-green-500" />,
         title: 'Tu futuro está asegurado',
@@ -505,20 +655,20 @@ const SuccessPage = () => {
           <p className="text-gray-600 mb-3">¿Necesitas asistencia inmediata?</p>
           <div className="flex flex-col md:flex-row justify-center space-y-3 md:space-y-0 md:space-x-6">
             <motion.a 
-              href="tel:+57300123456" 
+              href="tel:+573108483562" 
               className="flex items-center justify-center text-[#0A4958] hover:text-[#083a47] font-medium"
               whileHover={{ scale: 1.05 }}
             >
               <Phone size={18} className="mr-2" />
-              <span>+57 300 123 4567</span>
+              <span>(310)-848-35-62</span>
             </motion.a>
             <motion.a 
-              href="mailto:contacto@avanceseguros.com" 
+              href="mailto:info@avanceseguros.com" 
               className="flex items-center justify-center text-[#0A4958] hover:text-[#083a47] font-medium"
               whileHover={{ scale: 1.05 }}
             >
               <Mail size={18} className="mr-2" />
-              <span>contacto@avanceseguros.com</span>
+              <span>info@avanceseguros.com</span>
             </motion.a>
           </div>
         </motion.div>
