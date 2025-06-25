@@ -1,7 +1,68 @@
 const { Resend } = require('resend');
+const { GoogleAuth } = require('google-auth-library');
+const { google } = require('googleapis');
 
 // Inicializar Resend con la API key
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Clase para manejar Google Sheets
+class GoogleSheetsService {
+  constructor() {
+    this.auth = new GoogleAuth({
+      credentials: {
+        type: 'service_account',
+        project_id: process.env.GOOGLE_PROJECT_ID,
+        private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+        token_uri: 'https://oauth2.googleapis.com/token',
+        auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+        client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL}`
+      },
+      scopes: ['https://www.googleapis.com/auth/spreadsheets']
+    });
+    
+    this.sheets = google.sheets({ version: 'v4', auth: this.auth });
+  }
+
+  async addQuoteRecord(quoteData) {
+    try {
+      const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+      
+      // Preparar los datos para la fila
+      const values = [
+        [
+          new Date().toLocaleString('es-CO'), // Fecha
+          quoteData.quoteId, // ID Cotización
+          quoteData.clientName, // Nombre Cliente
+          quoteData.phone, // Teléfono
+          quoteData.email, // Email
+          quoteData.insuranceType, // Tipo Seguro
+          quoteData.category, // Personal/Empresarial
+          quoteData.documentId || 'N/A', // Documento
+          'Pendiente' // Status inicial
+        ]
+      ];
+
+      const request = {
+        spreadsheetId,
+        range: 'Cotizaciones!A:I',
+        valueInputOption: 'RAW',
+        resource: {
+          values
+        }
+      };
+
+      const response = await this.sheets.spreadsheets.values.append(request);
+      return response.data;
+    } catch (error) {
+      console.error('Error adding to Google Sheets:', error);
+      throw error;
+    }
+  }
+}
 
 // Función para generar contenido del correo según el tipo
 const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => {
@@ -228,6 +289,28 @@ exports.handler = async (event, context) => {
         subject: `Confirmación: Tu Solicitud de Cotización #${quoteId}${isBusinessQuote ? ' Empresarial' : ''}`,
         html: userEmailTemplate,
       });
+    }
+
+    // Guardar en Google Sheets
+    try {
+      const sheetsService = new GoogleSheetsService();
+      
+      // Preparar datos para Google Sheets
+      const quoteData = {
+        quoteId,
+        clientName: isBusinessQuote ? formData.nombreContacto : (formData.ownerName || formData.nombreCompleto),
+        phone: isBusinessQuote ? formData.telefono : (formData.phone || formData.celular),
+        email: emailToSend,
+        insuranceType,
+        category: isBusinessQuote ? 'Empresarial' : 'Personal',
+        documentId: isBusinessQuote ? formData.nit : (formData.identification || formData.numeroDocumento)
+      };
+      
+      await sheetsService.addQuoteRecord(quoteData);
+      console.log('Quote saved to Google Sheets successfully');
+    } catch (sheetsError) {
+      console.error('Error saving to Google Sheets:', sheetsError);
+      // No fallar la función principal si Google Sheets falla
     }
 
     return {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertTriangle, ArrowRight, Building, User, Phone, Mail, MessageSquare } from 'lucide-react';
+import { CheckCircle, AlertTriangle, ArrowRight, Building, HardHat, Shield, Truck, FileCheck, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Importar componentes del sistema existente

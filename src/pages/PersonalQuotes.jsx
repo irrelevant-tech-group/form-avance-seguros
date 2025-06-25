@@ -274,36 +274,6 @@ const PersonalQuotes = ({ setSelectedQuoteType, setSelectedCategory }) => {
         </div>
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.8 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16"
-      >
-        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-          <div className="flex items-center mb-3 text-[#0A4958]">
-            <Shield size={24} className="mr-2" />
-            <h3 className="font-semibold">Protección Garantizada</h3>
-          </div>
-          <p className="text-gray-600 text-sm">Trabajamos con las mejores aseguradoras para brindarte la protección que necesitas.</p>
-        </div>
-        
-        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-          <div className="flex items-center mb-3 text-[#0A4958]">
-            <Clock size={24} className="mr-2" />
-            <h3 className="font-semibold">Respuesta Rápida</h3>
-          </div>
-          <p className="text-gray-600 text-sm">Recibirás tu cotización personalizada en menos de 24 horas hábiles.</p>
-        </div>
-        
-        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-          <div className="flex items-center mb-3 text-[#C69C3F]">
-            <DollarSign size={24} className="mr-2" />
-            <h3 className="font-semibold">Mejor Precio</h3>
-          </div>
-          <p className="text-gray-600 text-sm">Comparamos opciones para ofrecerte el mejor precio con la cobertura adecuada.</p>
-        </div>
-      </motion.div>
     </div>
   );
 };

@@ -320,36 +320,7 @@ const BusinessQuotes = ({ setSelectedQuoteType, setSelectedCategory }) => {
         </div>
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.9 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16"
-      >
-        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-          <div className="flex items-center mb-3 text-[#0A4958]">
-            <Shield size={24} className="mr-2" />
-            <h3 className="font-semibold">Asesoría Especializada</h3>
-          </div>
-          <p className="text-gray-600 text-sm">Contamos con especialistas en cada ramo empresarial para brindarte la mejor asesoría.</p>
-        </div>
-        
-        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-          <div className="flex items-center mb-3 text-[#0A4958]">
-            <Clock size={24} className="mr-2" />
-            <h3 className="font-semibold">Análisis Personalizado</h3>
-          </div>
-          <p className="text-gray-600 text-sm">Realizamos un análisis de riesgos específico para tu empresa y sector.</p>
-        </div>
-        
-        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-          <div className="flex items-center mb-3 text-[#C69C3F]">
-            <DollarSign size={24} className="mr-2" />
-            <h3 className="font-semibold">Mejores Tarifas</h3>
-          </div>
-          <p className="text-gray-600 text-sm">Negociamos las mejores tarifas empresariales del mercado para tu empresa.</p>
-        </div>
-      </motion.div>
+      
     </div>
   );
 };
