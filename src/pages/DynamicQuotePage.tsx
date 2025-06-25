@@ -277,7 +277,7 @@ const DynamicQuotePage = () => {
                         <div className="text-sm text-gray-600">Empresas confiadas</div>
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-[#C69C3F]">15+</div>
+                        <div className="text-2xl font-bold text-[#C69C3F]">17+</div>
                         <div className="text-sm text-gray-600">Años experiencia</div>
                       </div>
                     </div>
