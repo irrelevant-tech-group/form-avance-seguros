@@ -33,6 +33,14 @@ const healthData = {
     { value: '3', label: '3 personas' },
     { value: '4', label: '4 personas' },
     { value: '5', label: '5 personas' }
+  ],
+  epsActual: [
+    { value: 'sura', label: 'Sura' },
+    { value: 'sanitas', label: 'Sanitas' },
+    { value: 'savia_salud', label: 'Savia Salud' },
+    { value: 'salud_total', label: 'Salud Total' },
+    { value: 'nueva_eps', label: 'Nueva EPS' },
+    { value: 'otra', label: 'Otra' }
   ]
 };
 
@@ -43,8 +51,9 @@ const HealthQuoteForm = () => {
     nombreCompleto: '',
     tipoDocumento: '',
     numeroDocumento: '',
-    edad: '',
+    fechaNacimiento: '',
     celular: '',
+    epsActual: '',
     sufreEnfermedad: 'no',
     cualEnfermedad: '',
     deseaAsegurarAlguienMas: 'no',
@@ -75,7 +84,7 @@ const HealthQuoteForm = () => {
             nombreCompleto: '',
             tipoDocumento: '',
             numeroDocumento: '',
-            edad: '',
+            fechaNacimiento: '',
             celular: '',
             sufreEnfermedad: 'no',
             cualEnfermedad: ''
@@ -103,20 +112,11 @@ const HealthQuoteForm = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    // Validar que la edad solo contenga números
-    if (name === 'edad') {
-      const numValue = value.replace(/\D/g, '');
-      setFormState(prev => ({
-        ...prev,
-        [name]: numValue
-      }));
-    } else {
-      setFormState(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+
+    setFormState(prev => ({
+      ...prev,
+      [name]: value
+    }));
     
     // Clear error when field is edited
     if (errors[name]) {
@@ -131,9 +131,9 @@ const HealthQuoteForm = () => {
   const handleAdditionalPersonChange = (personaId, field, value) => {
     setFormState(prev => ({
       ...prev,
-      personasAdicionales: prev.personasAdicionales.map(persona => 
-        persona.id === personaId 
-          ? { ...persona, [field]: field === 'edad' ? value.replace(/\D/g, '') : value }
+      personasAdicionales: prev.personasAdicionales.map(persona =>
+        persona.id === personaId
+          ? { ...persona, [field]: value }
           : persona
       )
     }));
@@ -211,7 +211,7 @@ const HealthQuoteForm = () => {
     if (!formState.nombreCompleto) newErrors.nombreCompleto = 'El campo Nombre completo es requerido';
     if (!formState.tipoDocumento) newErrors.tipoDocumento = 'El campo Tipo de documento es requerido';
     if (!formState.numeroDocumento) newErrors.numeroDocumento = 'El campo Número documento es requerido';
-    if (!formState.edad) newErrors.edad = 'El campo Edad en años es requerido';
+    if (!formState.fechaNacimiento) newErrors.fechaNacimiento = 'El campo Fecha de nacimiento es requerido';
     if (!formState.celular) newErrors.celular = 'El campo Celular es requerido';
     if (formState.sufreEnfermedad === 'si' && !formState.cualEnfermedad) {
       newErrors.cualEnfermedad = 'El campo ¿Cuál? es requerido';
@@ -222,7 +222,7 @@ const HealthQuoteForm = () => {
       if (!persona.nombreCompleto) newErrors[`adicional_${persona.id}_nombreCompleto`] = 'El campo Nombre completo es requerido';
       if (!persona.tipoDocumento) newErrors[`adicional_${persona.id}_tipoDocumento`] = 'El campo Tipo de documento es requerido';
       if (!persona.numeroDocumento) newErrors[`adicional_${persona.id}_numeroDocumento`] = 'El campo Número documento es requerido';
-      if (!persona.edad) newErrors[`adicional_${persona.id}_edad`] = 'El campo Edad en años es requerido';
+      if (!persona.fechaNacimiento) newErrors[`adicional_${persona.id}_fechaNacimiento`] = 'El campo Fecha de nacimiento es requerido';
       if (!persona.celular) newErrors[`adicional_${persona.id}_celular`] = 'El campo Celular es requerido';
       if (persona.sufreEnfermedad === 'si' && !persona.cualEnfermedad) {
         newErrors[`adicional_${persona.id}_cualEnfermedad`] = 'El campo ¿Cuál? es requerido';
@@ -323,10 +323,13 @@ const HealthQuoteForm = () => {
       <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden mb-8">
         <div className="p-6 md:p-8">
           {/* Póliza de salud - tomador */}
-          <FormSection 
-            title="COTIZAR PÓLIZA DE SALUD - TOMADOR" 
+          <FormSection
+            title="COTIZAR PÓLIZA DE SALUD - TOMADOR"
             icon={<User size={24} className="text-green-500" />}
           >
+            <p className="text-sm text-gray-600">
+              El tomador es la persona que contrata y paga la póliza. Puede ser la misma persona que el asegurado.
+            </p>
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormInput
@@ -369,13 +372,13 @@ const HealthQuoteForm = () => {
                 />
 
                 <FormInput
-                  label="Edad en años"
-                  name="edad"
-                  type="number"
-                  value={formState.edad}
+                  label="Fecha de nacimiento"
+                  name="fechaNacimiento"
+                  type="date"
+                  value={formState.fechaNacimiento}
                   onChange={handleInputChange}
                   required
-                  error={errors.edad}
+                  error={errors.fechaNacimiento}
                 />
 
                 <PhoneInput
@@ -385,6 +388,17 @@ const HealthQuoteForm = () => {
                   onChange={handlePhoneChange}
                   required
                   error={errors.celular}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <FormSelect
+                  label="EPS Actual"
+                  name="epsActual"
+                  options={healthData.epsActual}
+                  value={formState.epsActual}
+                  onChange={handleInputChange}
+                  error={errors.epsActual}
                 />
               </div>
               
@@ -471,12 +485,12 @@ const HealthQuoteForm = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
-                    label="Edad en años"
-                    type="number"
-                    value={persona.edad}
-                    onChange={(e) => handleAdditionalPersonChange(persona.id, 'edad', e.target.value)}
+                    label="Fecha de nacimiento"
+                    type="date"
+                    value={persona.fechaNacimiento}
+                    onChange={(e) => handleAdditionalPersonChange(persona.id, 'fechaNacimiento', e.target.value)}
                     required
-                    error={errors[`adicional_${persona.id}_edad`]}
+                    error={errors[`adicional_${persona.id}_fechaNacimiento`]}
                   />
                   
                   <PhoneInput
