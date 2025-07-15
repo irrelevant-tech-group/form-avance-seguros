@@ -1,5 +1,4 @@
 const { Resend } = require('resend');
-const { GoogleAuth } = require('google-auth-library');
 const { google } = require('googleapis');
 
 // Inicializar Resend con la API key
@@ -8,58 +7,101 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Clase para manejar Google Sheets
 class GoogleSheetsService {
   constructor() {
-    this.auth = new GoogleAuth({
+    // Usar el método de autenticación del código 2 que funciona
+    const auth = new google.auth.GoogleAuth({
       credentials: {
-        type: 'service_account',
-        project_id: process.env.GOOGLE_PROJECT_ID,
-        private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-        token_uri: 'https://oauth2.googleapis.com/token',
-        auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-        client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL}`
+        client_email: process.env.GOOGLE_CLIENT_EMAIL,
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
       },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets']
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
-    
-    this.sheets = google.sheets({ version: 'v4', auth: this.auth });
+
+    this.sheets = google.sheets({ version: 'v4', auth });
+    this.spreadsheetId = process.env.GOOGLE_SHEET_ID;
   }
 
-  async addQuoteRecord(quoteData) {
+  _prepareSheetData(quoteType, formData, quoteId, isBusinessQuote) {
+    const timestamp = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+    
+    let contactName = 'N/A';
+    let contactId = 'N/A';
+    let contactPhone = 'N/A';
+    let contactEmail = 'N/A';
+    let contactAddress = 'N/A';
+    let extraData1 = '';
+    let extraData2 = '';
+    let extraData3 = '';
+    let message = '';
+
+    if (isBusinessQuote) {
+      contactName = formData.nombreContacto;
+      contactId = `NIT: ${formData.nit}`;
+      contactPhone = formData.telefono;
+      contactEmail = formData.correoElectronico;
+      contactAddress = formData.direccion;
+      extraData1 = `Razón Social: ${formData.razonSocial}`;
+      extraData2 = `Objeto Social: ${formData.objetoSocial}`;
+      extraData3 = `Rep. Legal: ${formData.representanteLegal}`;
+      message = formData.mensajeAdicional || '';
+    } else if (quoteType === 'vehiculos') {
+      contactName = formData.ownerName;
+      contactId = formData.identification;
+      contactPhone = formData.phone;
+      contactEmail = formData.email || formData.additionalEmail;
+      contactAddress = formData.address;
+      extraData1 = `Marca: ${formData.brand}`;
+      extraData2 = `Modelo: ${formData.model}`;
+      extraData3 = `Año: ${formData.year}`;
+    } else {
+      contactName = formData.nombreCompleto;
+      contactId = `${formData.tipoDocumento}: ${formData.numeroDocumento}`;
+      contactPhone = formData.celular;
+      contactEmail = formData.email;
+      extraData1 = `Edad: ${formData.edad}`;
+      extraData2 = `Sufre Enfermedad: ${formData.sufreEnfermedad}`;
+      extraData3 = formData.sufreEnfermedad === 'si' ? formData.cualEnfermedad : 'N/A';
+    }
+
+    return [
+      timestamp,
+      quoteId,
+      quoteType,
+      contactName,
+      contactId,
+      contactPhone,
+      contactEmail,
+      contactAddress,
+      extraData1,
+      extraData2,
+      extraData3,
+      message,
+      JSON.stringify(formData, null, 2),
+    ];
+  }
+
+  async addQuoteRecord(quoteType, formData, quoteId, isBusinessQuote = false) {
+    if (!this.spreadsheetId) {
+      console.error('Error: El ID de la hoja de cálculo de Google (GOOGLE_SHEET_ID) no está configurado.');
+      return;
+    }
+
     try {
-      const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+      const range = 'Cotizaciones!A1';
+      const values = [this._prepareSheetData(quoteType, formData, quoteId, isBusinessQuote)];
       
-      // Preparar los datos para la fila
-      const values = [
-        [
-          new Date().toLocaleString('es-CO'), // Fecha
-          quoteData.quoteId, // ID Cotización
-          quoteData.clientName, // Nombre Cliente
-          quoteData.phone, // Teléfono
-          quoteData.email, // Email
-          quoteData.insuranceType, // Tipo Seguro
-          quoteData.category, // Personal/Empresarial
-          quoteData.documentId || 'N/A', // Documento
-          'Pendiente' // Status inicial
-        ]
-      ];
+      const resource = { values };
+      
+      await this.sheets.spreadsheets.values.append({
+        spreadsheetId: this.spreadsheetId,
+        range,
+        valueInputOption: 'USER_ENTERED',
+        resource,
+      });
 
-      const request = {
-        spreadsheetId,
-        range: 'Cotizaciones!A:I',
-        valueInputOption: 'RAW',
-        resource: {
-          values
-        }
-      };
+      console.log(`Registro de cotización #${quoteId} guardado exitosamente en Google Sheets.`);
 
-      const response = await this.sheets.spreadsheets.values.append(request);
-      return response.data;
     } catch (error) {
-      console.error('Error adding to Google Sheets:', error);
-      throw error;
+      console.error(`Error al guardar en Google Sheets para la cotización #${quoteId}:`, error.message);
     }
   }
 }
@@ -97,7 +139,6 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
       </ul>
     `;
   } else {
-    // Contenido para formularios personales existente
     const insuranceType = quoteType === 'vehiculos' ? 'Auto' : 
                          quoteType === 'vida' ? 'Vida' : 
                          quoteType === 'salud' ? 'Salud' :
@@ -159,7 +200,6 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
 };
 
 exports.handler = async (event, context) => {
-  // Solo permitir POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -180,6 +220,17 @@ exports.handler = async (event, context) => {
       userEmail,
       isBusinessQuote = false
     } = data;
+
+    if (!formData || !quoteId || !quoteType) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+        body: JSON.stringify({ success: false, error: 'Faltan datos en la solicitud.' })
+      };
+    }
 
     // Determinar el tipo de seguro
     const insuranceType = isBusinessQuote ? 
@@ -270,47 +321,60 @@ exports.handler = async (event, context) => {
       </div>
     `;
 
-    // Correo al administrador
-    const adminEmail = await resend.emails.send({
-      from: 'notificaciones@updates.stayirrelevant.com',
-      to: ['juanpablog857@gmail.com'], // Cambiar por el email real del admin
-      subject: `Nueva Solicitud de Cotización #${quoteId} - ${insuranceType}${isBusinessQuote ? ' (Empresarial)' : ''}`,
-      html: adminEmailTemplate,
-    });
-
-    // Correo al usuario - validar que exista el email
-    let userEmailResponse = null;
-    const emailToSend = userEmail || (isBusinessQuote ? formData.correoElectronico : formData.email);
-    
-    if (emailToSend) {
-      userEmailResponse = await resend.emails.send({
-        from: 'notificaciones@updates.stayirrelevant.com',
-        to: [emailToSend],
-        subject: `Confirmación: Tu Solicitud de Cotización #${quoteId}${isBusinessQuote ? ' Empresarial' : ''}`,
-        html: userEmailTemplate,
-      });
-    }
-
-    // Guardar en Google Sheets
+    // 1. Guardar en Google Sheets primero
     try {
       const sheetsService = new GoogleSheetsService();
-      
-      // Preparar datos para Google Sheets
-      const quoteData = {
-        quoteId,
-        clientName: isBusinessQuote ? formData.nombreContacto : (formData.ownerName || formData.nombreCompleto),
-        phone: isBusinessQuote ? formData.telefono : (formData.phone || formData.celular),
-        email: emailToSend,
-        insuranceType,
-        category: isBusinessQuote ? 'Empresarial' : 'Personal',
-        documentId: isBusinessQuote ? formData.nit : (formData.identification || formData.numeroDocumento)
-      };
-      
-      await sheetsService.addQuoteRecord(quoteData);
+      await sheetsService.addQuoteRecord(quoteType, formData, quoteId, isBusinessQuote);
       console.log('Quote saved to Google Sheets successfully');
     } catch (sheetsError) {
       console.error('Error saving to Google Sheets:', sheetsError);
-      // No fallar la función principal si Google Sheets falla
+    }
+
+    // 2. Enviar correo al administrador
+    let adminEmailId = null;
+    try {
+      console.log('Intentando enviar correo al administrador...');
+      const adminEmail = await resend.emails.send({
+        from: 'notificaciones@updates.stayirrelevant.com',
+        to: ['juanpablog857@gmail.com'],
+        subject: `Nueva Solicitud de Cotización #${quoteId} - ${insuranceType}${isBusinessQuote ? ' (Empresarial)' : ''}`,
+        html: adminEmailTemplate,
+      });
+
+      if (adminEmail && adminEmail.data && adminEmail.data.id) {
+        adminEmailId = adminEmail.data.id;
+        console.log('Correo al administrador enviado exitosamente:', adminEmailId);
+      } else {
+        console.log('Respuesta del correo admin:', JSON.stringify(adminEmail, null, 2));
+        throw new Error('La respuesta del envío de correo no tiene el formato esperado');
+      }
+    } catch (emailError) {
+      console.error('Error enviando correo al administrador:', emailError);
+    }
+
+    // 3. Enviar correo al usuario (si se proporcionó email)
+    let userEmailId = null;
+    const emailToSend = userEmail || (isBusinessQuote ? formData.correoElectronico : formData.email);
+    
+    if (emailToSend) {
+      try {
+        console.log('Intentando enviar correo al usuario:', emailToSend);
+        const userEmailResponse = await resend.emails.send({
+          from: 'notificaciones@updates.stayirrelevant.com',
+          to: [emailToSend],
+          subject: `Confirmación: Tu Solicitud de Cotización #${quoteId}${isBusinessQuote ? ' Empresarial' : ''}`,
+          html: userEmailTemplate,
+        });
+
+        if (userEmailResponse && userEmailResponse.data && userEmailResponse.data.id) {
+          userEmailId = userEmailResponse.data.id;
+          console.log('Correo al usuario enviado exitosamente:', userEmailId);
+        } else {
+          console.log('Respuesta del correo usuario:', JSON.stringify(userEmailResponse, null, 2));
+        }
+      } catch (userEmailError) {
+        console.error('Error enviando correo al usuario:', userEmailError);
+      }
     }
 
     return {
@@ -322,14 +386,15 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: true,
-        adminEmailId: adminEmail.data.id,
-        userEmailId: userEmailResponse ? userEmailResponse.data.id : null,
-        message: 'Correos enviados exitosamente',
+        adminEmailId: adminEmailId,
+        userEmailId: userEmailId,
+        message: 'Solicitud procesada exitosamente',
         quoteType: isBusinessQuote ? 'empresarial' : 'personal'
       })
     };
+
   } catch (error) {
-    console.error('Error sending emails:', error);
+    console.error('Error en la función:', error);
     return {
       statusCode: 500,
       headers: {
@@ -339,7 +404,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: false,
-        error: error.message
+        error: 'Hubo un error al procesar tu solicitud.'
       })
     };
   }
