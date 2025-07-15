@@ -39,7 +39,7 @@ const lifeData = {
 const LifeQuoteForm = () => {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
-    // Información de la póliza de vida - Persona principal
+    // Información de la póliza de vida - tomador
     nombreCompleto: '',
     tipoDocumento: '',
     numeroDocumento: '',
@@ -207,7 +207,7 @@ const LifeQuoteForm = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    // Validar información de la póliza de vida - Persona principal
+    // Validar información de la póliza de vida - tomador
     if (!formState.nombreCompleto) newErrors.nombreCompleto = 'El campo Nombre completo es requerido';
     if (!formState.tipoDocumento) newErrors.tipoDocumento = 'El campo Tipo de documento es requerido';
     if (!formState.numeroDocumento) newErrors.numeroDocumento = 'El campo Número documento es requerido';
@@ -322,9 +322,9 @@ const LifeQuoteForm = () => {
       
       <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden mb-8">
         <div className="p-6 md:p-8">
-          {/* Póliza de vida - Persona principal */}
+          {/* Póliza de vida - tomador */}
           <FormSection 
-            title="COTIZAR PÓLIZA DE VIDA - PERSONA PRINCIPAL" 
+            title="COTIZAR PÓLIZA DE VIDA - TOMADOR" 
             icon={<User size={24} className="text-blue-600" />}
           >
             <div className="space-y-6">
@@ -337,7 +337,16 @@ const LifeQuoteForm = () => {
                   required
                   error={errors.nombreCompleto}
                 />
-                
+
+                <FormInput
+                  label="Su correo electrónico"
+                  name="email"
+                  type="email"
+                  value={formState.email}
+                  onChange={handleInputChange}
+                  error={errors.email}
+                />
+
                 <FormSelect
                   label="Tipo de documento"
                   name="tipoDocumento"
@@ -347,7 +356,9 @@ const LifeQuoteForm = () => {
                   required
                   error={errors.tipoDocumento}
                 />
-                
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormInput
                   label="Número documento"
                   name="numeroDocumento"
@@ -356,9 +367,7 @@ const LifeQuoteForm = () => {
                   required
                   error={errors.numeroDocumento}
                 />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                 <FormInput
                   label="Edad en años"
                   name="edad"
@@ -368,7 +377,7 @@ const LifeQuoteForm = () => {
                   required
                   error={errors.edad}
                 />
-                
+
                 <PhoneInput
                   label="Celular"
                   name="celular"
@@ -506,19 +515,11 @@ const LifeQuoteForm = () => {
             </FormSection>
           ))}
 
-          {/* Email adicional */}
-          <FormSection 
-            title="INFORMACIÓN ADICIONAL" 
+          {/* Información adicional */}
+          <FormSection
+            title="INFORMACIÓN ADICIONAL"
           >
             <div className="space-y-6">
-              <FormInput
-                label="Su correo electrónico"
-                name="email"
-                type="email"
-                value={formState.email}
-                onChange={handleInputChange}
-                error={errors.email}
-              />
               
               <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
                 <div className="flex items-start">
