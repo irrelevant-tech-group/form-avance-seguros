@@ -4,8 +4,8 @@
   publish = "dist"
 
 [functions]
-  node_bundler = "nft"
-  external_node_modules = ["resend"]
+  node_bundler = "esbuild"
+  external_node_modules = ["google-auth-library", "googleapis"]
 
 [dev]
   targetPort = 8080

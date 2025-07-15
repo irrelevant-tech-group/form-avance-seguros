@@ -174,7 +174,7 @@ const CategorySelection = ({ setSelectedCategory }) => {
                   Seguros Empresariales
                 </h2>
                 <p className="text-gray-600 text-base leading-relaxed">
-                  Soluciones integrales para proteger tu empresa. Desde responsabilidad civil hasta construcción.
+                  Soluciones integrales para proteger tu empresa. Ante diferentes eventos que puedan afectar su continuidad.
                 </p>
               </div>
               
@@ -183,27 +183,27 @@ const CategorySelection = ({ setSelectedCategory }) => {
                   <div className="bg-orange-100 rounded-full p-1 mr-3">
                     <CheckCircle className="w-4 h-4 text-orange-600" />
                   </div>
-                  <span className="text-gray-700 font-medium text-sm">Responsabilidad Civil y ARL</span>
+                  <span className="text-gray-700 font-medium text-sm">Perdida o daño de bienes materiales</span>
                 </div>
                 <div className="flex items-center">
                   <div className="bg-orange-100 rounded-full p-1 mr-3">
                     <CheckCircle className="w-4 h-4 text-orange-600" />
                   </div>
-                  <span className="text-gray-700 font-medium text-sm">Transporte y Construcción</span>
+                  <span className="text-gray-700 font-medium text-sm">Afectacion a otros por daños a terceros</span>
                 </div>
                 <div className="flex items-center">
                   <div className="bg-orange-100 rounded-full p-1 mr-3">
                     <CheckCircle className="w-4 h-4 text-orange-600" />
                   </div>
-                  <span className="text-gray-700 font-medium text-sm">Asesoría especializada</span>
+                  <span className="text-gray-700 font-medium text-sm">Asistencia Empresarial</span>
                 </div>
               </div>
               
               <div className="bg-gray-50 rounded-xl p-3 group-hover:bg-orange-50 transition-colors duration-300">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-xl font-bold text-[#C69C3F]">+500</div>
-                    <div className="text-xs text-gray-600">Empresas confiadas</div>
+                    <div className="text-xl font-bold text-[#C69C3F]">TOP</div>
+                    <div className="text-xs text-gray-600">Tub aliado en riesgos y tendencias</div>
                   </div>
                   <div>
                     <div className="text-xl font-bold text-[#C69C3F]">15+</div>

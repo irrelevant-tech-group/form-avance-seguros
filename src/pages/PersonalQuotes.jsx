@@ -116,15 +116,15 @@ const PersonalQuotes = ({ setSelectedQuoteType, setSelectedCategory }) => {
               <ul className="space-y-2 text-sm text-gray-500 mb-6">
                 <li className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
-                  Atención hospitalaria
+                  Hospitalizacion y Cirugua
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
-                  Consulta médica ilimitada
+                  Consulta ilimitada especialistas
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
-                  Medicamentos cubiertos
+                  Atencion medica domiciliaria
                 </li>
               </ul>
               
