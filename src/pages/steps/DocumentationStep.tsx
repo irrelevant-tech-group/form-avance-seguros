@@ -160,7 +160,7 @@ const DocumentationStep = ({
             files={files}
           />
           <p className="mt-2 text-sm text-gray-500">
-            Puedes adjuntar foto de la matrícula y/o copia del seguro actual (opcional)
+            Documentos requeridos: Foto de la matrícula y Foto de la cédula del tomador
           </p>
         </div>
         

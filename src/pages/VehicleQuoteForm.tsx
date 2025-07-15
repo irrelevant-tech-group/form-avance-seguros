@@ -25,9 +25,7 @@ const VehicleQuoteForm = () => {
     licensePlate: '',
     vehicleType: '',
     brand: '',
-    model: '',
     year: '',
-    trim: '',
     transmission: '',
     hasLien: 'no',
     invoiceValue: '',
@@ -122,9 +120,7 @@ const VehicleQuoteForm = () => {
       // Validar datos del vehículo
       if (!formState.vehicleType) newErrors.vehicleType = 'Este campo es obligatorio';
       if (!formState.brand) newErrors.brand = 'Este campo es obligatorio';
-      if (!formState.model) newErrors.model = 'Este campo es obligatorio';
       if (!formState.year) newErrors.year = 'Este campo es obligatorio';
-      if (!formState.trim) newErrors.trim = 'Este campo es obligatorio';
       if (!formState.transmission) newErrors.transmission = 'Este campo es obligatorio';
     } else if (currentStep === 3) {
       // Validar información adicional
@@ -167,9 +163,7 @@ const VehicleQuoteForm = () => {
     
     if (!formState.vehicleType) allErrors.vehicleType = 'Este campo es obligatorio';
     if (!formState.brand) allErrors.brand = 'Este campo es obligatorio';
-    if (!formState.model) allErrors.model = 'Este campo es obligatorio';
     if (!formState.year) allErrors.year = 'Este campo es obligatorio';
-    if (!formState.trim) allErrors.trim = 'Este campo es obligatorio';
     if (!formState.transmission) allErrors.transmission = 'Este campo es obligatorio';
     
     if (formState.additionalEmail && !/\S+@\S+\.\S+/.test(formState.additionalEmail)) {
@@ -198,7 +192,7 @@ const VehicleQuoteForm = () => {
           if (step === 1) {
             return ['ownerName', 'identification', 'birthDate', 'address', 'phone', 'email'].includes(key);
           } else if (step === 2) {
-            return ['vehicleType', 'brand', 'model', 'year', 'trim', 'transmission'].includes(key);
+            return ['vehicleType', 'brand', 'year', 'transmission'].includes(key);
           } else if (step === 3) {
             return ['additionalEmail'].includes(key);
           }

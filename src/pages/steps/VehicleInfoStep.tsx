@@ -4,11 +4,9 @@ import { FormSection, SectionIcon, FormInput, FormSelect } from '../../component
 import { 
   vehicleTypes, 
   vehicleBrands, 
-  vehicleModels, 
-  years, 
-  vehicleTrim, 
-  transmission, 
-  yesNoOptions 
+  years,
+  transmission,
+  yesNoOptions
 } from '../../data/FormData';
 
 const VehicleInfoStep = ({ 
@@ -59,28 +57,16 @@ const VehicleInfoStep = ({
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormSelect
-          label="Marca"
+        <FormInput
+          label="Marca del vehículo"
           name="brand"
-          options={vehicleBrands}
+          type="text"
           value={formState.brand}
           onChange={handleInputChange}
           required
           error={errors.brand}
         />
-        
-        <FormSelect
-          label="Modelo"
-          name="model"
-          options={vehicleModels}
-          value={formState.model}
-          onChange={handleInputChange}
-          required
-          error={errors.model}
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
         <FormSelect
           label="Año"
           name="year"
@@ -89,16 +75,6 @@ const VehicleInfoStep = ({
           onChange={handleInputChange}
           required
           error={errors.year}
-        />
-        
-        <FormSelect
-          label="Corte"
-          name="trim"
-          options={vehicleTrim}
-          value={formState.trim}
-          onChange={handleInputChange}
-          required
-          error={errors.trim}
         />
       </div>
       
