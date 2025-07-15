@@ -57,7 +57,7 @@ class GoogleSheetsService {
       contactId = `${formData.tipoDocumento}: ${formData.numeroDocumento}`;
       contactPhone = formData.celular;
       contactEmail = formData.email;
-      extraData1 = `Edad: ${formData.edad}`;
+      extraData1 = `Fecha de nacimiento: ${formData.fechaNacimiento}`;
       extraData2 = `Sufre Enfermedad: ${formData.sufreEnfermedad}`;
       extraData3 = formData.sufreEnfermedad === 'si' ? formData.cualEnfermedad : 'N/A';
     }
@@ -186,7 +186,7 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
               <ul>
                 <li><strong>Nombre:</strong> ${persona.nombreCompleto}</li>
                 <li><strong>Documento:</strong> ${persona.numeroDocumento}</li>
-                <li><strong>Edad:</strong> ${persona.edad}</li>
+                <li><strong>Fecha de Nacimiento:</strong> ${persona.fechaNacimiento}</li>
                 <li><strong>Teléfono:</strong> ${persona.celular}</li>
                 <li><strong>Enfermedad:</strong> ${persona.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
                 ${persona.cualEnfermedad ? `<li><strong>Detalle:</strong> ${persona.cualEnfermedad}</li>` : ''}
