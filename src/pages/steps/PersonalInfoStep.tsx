@@ -26,7 +26,19 @@ const PersonalInfoStep = ({
           required
           error={errors.ownerName}
         />
-        
+
+        <FormInput
+          label="Email"
+          name="email"
+          type="email"
+          icon={<Mail size={18} className="text-gray-500" />}
+          value={formState.email}
+          onChange={handleInputChange}
+          error={errors.email}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormInput
           label="Cédula"
           name="identification"
@@ -35,9 +47,7 @@ const PersonalInfoStep = ({
           required
           error={errors.identification}
         />
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
         <FormInput
           label="Fecha de nacimiento"
           name="birthDate"
@@ -48,7 +58,9 @@ const PersonalInfoStep = ({
           required
           error={errors.birthDate}
         />
-        
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormInput
           label="Dirección"
           name="address"
@@ -58,9 +70,7 @@ const PersonalInfoStep = ({
           required
           error={errors.address}
         />
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
         <PhoneInput
           label="Celular"
           name="phone"
@@ -69,16 +79,6 @@ const PersonalInfoStep = ({
           onChange={handlePhoneChange}
           required
           error={errors.phone}
-        />
-        
-        <FormInput
-          label="Email"
-          name="email"
-          type="email"
-          icon={<Mail size={18} className="text-gray-500" />}
-          value={formState.email}
-          onChange={handleInputChange}
-          error={errors.email}
         />
       </div>
     </FormSection>

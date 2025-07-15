@@ -259,7 +259,19 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                   required
                   error={errors.nombreContacto}
                 />
-                
+
+                <FormInput
+                  label="Correo Electrónico"
+                  name="correoElectronico"
+                  type="email"
+                  value={formState.correoElectronico}
+                  onChange={handleInputChange}
+                  required
+                  error={errors.correoElectronico}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormInput
                   label="NIT"
                   name="nit"
@@ -269,9 +281,7 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                   error={errors.nit}
                   placeholder="900123456-1"
                 />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                 <FormInput
                   label="Dirección"
                   name="direccion"
@@ -280,7 +290,9 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                   required
                   error={errors.direccion}
                 />
-                
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PhoneInput
                   label="Teléfono"
                   name="telefono"
@@ -289,26 +301,16 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                   required
                   error={errors.telefono}
                 />
+
+                <FormInput
+                  label="Razón Social"
+                  name="razonSocial"
+                  value={formState.razonSocial}
+                  onChange={handleInputChange}
+                  required
+                  error={errors.razonSocial}
+                />
               </div>
-              
-              <FormInput
-                label="Correo Electrónico"
-                name="correoElectronico"
-                type="email"
-                value={formState.correoElectronico}
-                onChange={handleInputChange}
-                required
-                error={errors.correoElectronico}
-              />
-              
-              <FormInput
-                label="Razón Social"
-                name="razonSocial"
-                value={formState.razonSocial}
-                onChange={handleInputChange}
-                required
-                error={errors.razonSocial}
-              />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormInput

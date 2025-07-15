@@ -39,7 +39,7 @@ const homeData = {
 const HomeQuoteForm = () => {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
-    // Información de la póliza de hogar - Persona principal
+    // Información de la póliza de hogar - tomador
     nombreCompleto: '',
     tipoDocumento: '',
     numeroDocumento: '',
@@ -207,7 +207,7 @@ const HomeQuoteForm = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    // Validar información de la póliza de hogar - Persona principal
+    // Validar información de la póliza de hogar - tomador
     if (!formState.nombreCompleto) newErrors.nombreCompleto = 'El campo Nombre completo es requerido';
     if (!formState.tipoDocumento) newErrors.tipoDocumento = 'El campo Tipo de documento es requerido';
     if (!formState.numeroDocumento) newErrors.numeroDocumento = 'El campo Número documento es requerido';
@@ -322,9 +322,9 @@ const HomeQuoteForm = () => {
       
       <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden mb-8">
         <div className="p-6 md:p-8">
-          {/* Póliza de hogar - Persona principal */}
+          {/* Póliza de hogar - tomador */}
           <FormSection 
-            title="COTIZAR PÓLIZA DE HOGAR - PERSONA PRINCIPAL" 
+            title="COTIZAR PÓLIZA DE HOGAR - TOMADOR" 
             icon={<User size={24} className="text-green-600" />}
           >
             <div className="space-y-6">
