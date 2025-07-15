@@ -2,7 +2,7 @@ interface FormData {
   name: string;
   email: string;
   company: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const sendRegistrationEmails = async (formData: FormData) => {

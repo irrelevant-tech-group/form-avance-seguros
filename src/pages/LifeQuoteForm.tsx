@@ -27,6 +27,10 @@ const lifeData = {
     { value: 'si', label: 'Sí' },
     { value: 'no', label: 'No' }
   ],
+  tipoSeguroOptions: [
+    { value: 'vida', label: 'Seguro de Vida' },
+    { value: 'credito', label: 'Plan Crédito Protegido' }
+  ],
   cantidadPersonas: [
     { value: '1', label: '1 persona' },
     { value: '2', label: '2 personas' },
@@ -54,7 +58,21 @@ const LifeQuoteForm = () => {
     email: '',
     
     // Personas adicionales
-    personasAdicionales: []
+    personasAdicionales: [],
+
+    // Tipo de seguro y valores asegurados
+    tipoSeguro: 'vida',
+    fallecimientoCualquierCausa: '',
+    fallecimientoAccidente: '',
+    enfermedadesGraves: '',
+    invalidezEnfermedad: '',
+    invalidezAccidente: '',
+    rentaDiaria: '',
+    valorCredito: '',
+    entidadFinanciera: '',
+
+    // Preguntas adicionales
+    conduceMoto: ''
   });
   
   const [errors, setErrors] = useState({});
@@ -104,8 +122,19 @@ const LifeQuoteForm = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // Validar que la edad solo contenga números
-    if (name === 'edad') {
+    // Validar campos numéricos
+    const numericFields = [
+      'edad',
+      'fallecimientoCualquierCausa',
+      'fallecimientoAccidente',
+      'enfermedadesGraves',
+      'invalidezEnfermedad',
+      'invalidezAccidente',
+      'rentaDiaria',
+      'valorCredito'
+    ];
+
+    if (numericFields.includes(name)) {
       const numValue = value.replace(/\D/g, '');
       setFormState(prev => ({
         ...prev,
@@ -206,7 +235,7 @@ const LifeQuoteForm = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     // Validar información de la póliza de vida - tomador
     if (!formState.nombreCompleto) newErrors.nombreCompleto = 'El campo Nombre completo es requerido';
     if (!formState.tipoDocumento) newErrors.tipoDocumento = 'El campo Tipo de documento es requerido';
@@ -215,6 +244,13 @@ const LifeQuoteForm = () => {
     if (!formState.celular) newErrors.celular = 'El campo Celular es requerido';
     if (formState.sufreEnfermedad === 'si' && !formState.cualEnfermedad) {
       newErrors.cualEnfermedad = 'El campo ¿Cuál? es requerido';
+    }
+    if (!formState.conduceMoto) newErrors.conduceMoto = 'El campo ¿Conduce moto? es requerido';
+    if (!formState.tipoSeguro) newErrors.tipoSeguro = 'Seleccione el tipo de seguro';
+
+    if (formState.tipoSeguro === 'credito') {
+      if (!formState.valorCredito) newErrors.valorCredito = 'El campo Valor del crédito es requerido';
+      if (!formState.entidadFinanciera) newErrors.entidadFinanciera = 'El campo Entidad financiera es requerido';
     }
     
     // Validar personas adicionales
@@ -258,13 +294,26 @@ const LifeQuoteForm = () => {
       const userEmail = formState.email;
       
       // Enviar correos usando la función serverless
+      const formDataToSend = { ...formState };
+      if (formState.tipoSeguro === 'vida') {
+        delete formDataToSend.valorCredito;
+        delete formDataToSend.entidadFinanciera;
+      } else {
+        delete formDataToSend.fallecimientoCualquierCausa;
+        delete formDataToSend.fallecimientoAccidente;
+        delete formDataToSend.enfermedadesGraves;
+        delete formDataToSend.invalidezEnfermedad;
+        delete formDataToSend.invalidezAccidente;
+        delete formDataToSend.rentaDiaria;
+      }
+
       const response = await fetch('/.netlify/functions/send-quote-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          formData: formState,
+          formData: formDataToSend,
           quoteId: quoteId,
           quoteType: 'vida',
           userEmail: userEmail
@@ -412,7 +461,16 @@ const LifeQuoteForm = () => {
                   </div>
                 )}
               </div>
-              
+
+              <FormRadioGroup
+                name="conduceMoto"
+                label="¿Conduce moto?"
+                options={lifeData.yesNoOptions}
+                value={formState.conduceMoto}
+                onChange={handleRadioChange}
+                error={errors.conduceMoto}
+              />
+
               <FormRadioGroup
                 name="deseaAsegurarAlguienMas"
                 label="¿Desea asegurar a alguien más en la póliza de Vida?"
@@ -514,6 +572,99 @@ const LifeQuoteForm = () => {
               </div>
             </FormSection>
           ))}
+
+          <FormSection title="VALORES ASEGURADOS">
+            <div className="space-y-6">
+              <FormRadioGroup
+                name="tipoSeguro"
+                label="Selecciona el tipo de seguro"
+                options={lifeData.tipoSeguroOptions}
+                value={formState.tipoSeguro}
+                onChange={handleRadioChange}
+                error={errors.tipoSeguro}
+              />
+
+              {formState.tipoSeguro === 'vida' && (
+                <>
+                  <h3 className="text-base font-semibold text-gray-800 mt-4">
+                    PROTECCIÓN PARA TU FAMILIA
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormInput
+                      label="Fallecimiento por cualquier causa"
+                      name="fallecimientoCualquierCausa"
+                      type="number"
+                      value={formState.fallecimientoCualquierCausa}
+                      onChange={handleInputChange}
+                    />
+                    <FormInput
+                      label="Fallecimiento por accidente"
+                      name="fallecimientoAccidente"
+                      type="number"
+                      value={formState.fallecimientoAccidente}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <h3 className="text-base font-semibold text-gray-800 mt-4">
+                    PROTECCIÓN PARA TI
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormInput
+                      label="Enfermedades graves"
+                      name="enfermedadesGraves"
+                      type="number"
+                      value={formState.enfermedadesGraves}
+                      onChange={handleInputChange}
+                    />
+                    <FormInput
+                      label="Invalidez por enfermedad"
+                      name="invalidezEnfermedad"
+                      type="number"
+                      value={formState.invalidezEnfermedad}
+                      onChange={handleInputChange}
+                    />
+                    <FormInput
+                      label="Invalidez por accidente"
+                      name="invalidezAccidente"
+                      type="number"
+                      value={formState.invalidezAccidente}
+                      onChange={handleInputChange}
+                    />
+                    <FormInput
+                      label="Renta diaria"
+                      name="rentaDiaria"
+                      type="number"
+                      value={formState.rentaDiaria}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </>
+              )}
+
+              {formState.tipoSeguro === 'credito' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormInput
+                    label="Valor del crédito"
+                    name="valorCredito"
+                    type="number"
+                    value={formState.valorCredito}
+                    onChange={handleInputChange}
+                    required
+                    error={errors.valorCredito}
+                  />
+                  <FormInput
+                    label="Entidad financiera"
+                    name="entidadFinanciera"
+                    value={formState.entidadFinanciera}
+                    onChange={handleInputChange}
+                    required
+                    error={errors.entidadFinanciera}
+                  />
+                </div>
+              )}
+            </div>
+          </FormSection>
 
           {/* Información adicional */}
           <FormSection
