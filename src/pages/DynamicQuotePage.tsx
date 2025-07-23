@@ -114,16 +114,6 @@ const DynamicQuotePage = () => {
               </span>
             </motion.h1>
             
-            <motion.p 
-              className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              Protege lo que más valoras con nuestros seguros personalizados.
-              <br />
-              <span className="text-[#0A4958] font-semibold">Elige tu categoría y comienza ahora.</span>
-            </motion.p>
           </div>
 
           {/* Selección Personal vs Empresarial mejorada */}
@@ -162,48 +152,18 @@ const DynamicQuotePage = () => {
                       Seguros Personales
                     </h2>
                     <p className="text-gray-600 text-lg leading-relaxed">
-                      Protección completa para ti y tu familia. Desde tu auto hasta tu hogar, cuidamos lo que más amas.
+                      Protección completa para ti y tu familia. Cuidamos lo que más valoras.
                     </p>
                   </div>
                   
                   {/* Lista de beneficios */}
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <div className="bg-green-100 rounded-full p-1 mr-3">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                      </div>
-                      <span className="text-gray-700 font-medium">Seguros de Auto, Salud y Vida</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="bg-green-100 rounded-full p-1 mr-3">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                      </div>
-                      <span className="text-gray-700 font-medium">Protección para Mascotas y Hogar</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="bg-green-100 rounded-full p-1 mr-3">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                      </div>
-                      <span className="text-gray-700 font-medium">Atención personalizada 24/7</span>
-                    </div>
-                  </div>
+                  
                   
                   {/* Estadísticas */}
-                  <div className="bg-gray-50 rounded-xl p-4 group-hover:bg-blue-50 transition-colors duration-300">
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <div className="text-2xl font-bold text-[#0A4958]">+5K</div>
-                        <div className="text-sm text-gray-600">Familias protegidas</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-[#0A4958]">24h</div>
-                        <div className="text-sm text-gray-600">Respuesta rápida</div>
-                      </div>
-                    </div>
-                  </div>
+                 
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-[#C69C3F] font-semibold text-lg">Comenzar cotización</span>
+                    <span className="text-[#C69C3F] font-semibold text-lg">Solicitar Cotizacion</span>
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-[#C69C3F] rounded-full animate-pulse"></div>
                       <div className="w-2 h-2 bg-[#C69C3F] rounded-full animate-pulse delay-100"></div>
@@ -243,48 +203,18 @@ const DynamicQuotePage = () => {
                       Seguros Empresariales
                     </h2>
                     <p className="text-gray-600 text-lg leading-relaxed">
-                      Soluciones integrales para proteger tu empresa. Desde responsabilidad civil hasta construcción.
+                      Soluciones integrales para que tu empresa siga avanzando.
                     </p>
                   </div>
                   
                   {/* Lista de beneficios */}
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <div className="bg-orange-100 rounded-full p-1 mr-3">
-                        <CheckCircle className="w-5 h-5 text-orange-600" />
-                      </div>
-                      <span className="text-gray-700 font-medium">Responsabilidad Civil y ARL</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="bg-orange-100 rounded-full p-1 mr-3">
-                        <CheckCircle className="w-5 h-5 text-orange-600" />
-                      </div>
-                      <span className="text-gray-700 font-medium">Transporte y Construcción</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="bg-orange-100 rounded-full p-1 mr-3">
-                        <CheckCircle className="w-5 h-5 text-orange-600" />
-                      </div>
-                      <span className="text-gray-700 font-medium">Asesoría especializada</span>
-                    </div>
-                  </div>
+                  
                   
                   {/* Estadísticas */}
-                  <div className="bg-gray-50 rounded-xl p-4 group-hover:bg-orange-50 transition-colors duration-300">
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <div className="text-2xl font-bold text-[#C69C3F]">+500</div>
-                        <div className="text-sm text-gray-600">Empresas confiadas</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-[#C69C3F]">17+</div>
-                        <div className="text-sm text-gray-600">Años experiencia</div>
-                      </div>
-                    </div>
-                  </div>
+                  
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-[#C69C3F] font-semibold text-lg">Comenzar cotización</span>
+                    <span className="text-[#C69C3F] font-semibold text-lg">Solicitar Cotizacion</span>
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-[#C69C3F] rounded-full animate-pulse"></div>
                       <div className="w-2 h-2 bg-[#C69C3F] rounded-full animate-pulse delay-100"></div>
@@ -311,7 +241,7 @@ const DynamicQuotePage = () => {
             ¿Necesitas asesoría personalizada?
           </h3>
           <p className="text-lg text-blue-100 mb-6 max-w-xl mx-auto">
-            Nuestros expertos están listos para ayudarte a encontrar la protección perfecta
+            Nuestros expertos están listos para ayudarte a encontrar la protección ideal
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-4">
             <a
