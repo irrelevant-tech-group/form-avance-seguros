@@ -7,17 +7,94 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Clase para manejar Google Sheets
 class GoogleSheetsService {
   constructor() {
-    // Usar el método de autenticación del código 2 que funciona
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
+    try {
+      console.log('🔄 Inicializando GoogleSheetsService...');
+      
+      // Intentar múltiples métodos de autenticación
+      let auth;
+      
+      // Método 1: Intentar con archivo de credenciales JSON si existe
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const credsPath = path.join(__dirname, '../../creds.json');
+        
+        if (fs.existsSync(credsPath)) {
+          console.log('✅ Encontrado archivo creds.json, usando autenticación con archivo');
+          auth = new google.auth.GoogleAuth({
+            keyFile: credsPath,
+            scopes: [
+              'https://www.googleapis.com/auth/spreadsheets',
+              'https://www.googleapis.com/auth/drive.file'
+            ],
+          });
+        } else {
+          throw new Error('Archivo creds.json no encontrado');
+        }
+      } catch (fileError) {
+        console.log('⚠️ Método de archivo falló, intentando con variables de entorno...');
+        
+        // Método 2: Variables de entorno con mejor manejo
+        if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+          throw new Error('Variables de entorno de Google faltantes');
+        }
+        
+        // Limpiar y formatear la clave privada correctamente
+        let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+        
+        if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+          throw new Error('Formato de clave privada inválido');
+        }
+        
+        // Múltiples intentos de limpieza de la clave
+        privateKey = privateKey
+          .replace(/\\n/g, '\n')
+          .replace(/"/g, '')
+          .replace(/'/g, '')
+          .trim();
+        
+        // Si la clave no termina con newline, agregarlo
+        if (!privateKey.endsWith('\n')) {
+          privateKey += '\n';
+        }
+        
+        const credentials = {
+          type: 'service_account',
+          project_id: 'cluvi-392522',
+          client_email: process.env.GOOGLE_CLIENT_EMAIL,
+          private_key: privateKey,
+          private_key_id: '7cf71e0f248e4fc9aad9667ba78a561bdd284796',
+          client_id: '100439673911701332394',
+          auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+          token_uri: 'https://oauth2.googleapis.com/token',
+          auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+          client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(process.env.GOOGLE_CLIENT_EMAIL)}`,
+          universe_domain: 'googleapis.com'
+        };
+        
+        auth = new google.auth.GoogleAuth({
+          credentials: credentials,
+          scopes: [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive.file'
+          ],
+        });
+      }
 
-    this.sheets = google.sheets({ version: 'v4', auth });
-    this.spreadsheetId = process.env.GOOGLE_SHEET_ID;
+      this.sheets = google.sheets({ version: 'v4', auth });
+      this.spreadsheetId = process.env.GOOGLE_SHEET_ID;
+      
+      if (!this.spreadsheetId) {
+        throw new Error('GOOGLE_SHEET_ID no está configurado');
+      }
+      
+      console.log('✅ GoogleSheetsService inicializado correctamente');
+    } catch (error) {
+      console.error('❌ Error inicializando GoogleSheetsService:', error.message);
+      console.error('Stack trace:', error.stack);
+      this.sheets = null;
+      this.spreadsheetId = null;
+    }
   }
 
   _prepareSheetData(quoteType, formData, quoteId, isBusinessQuote) {
@@ -80,31 +157,141 @@ class GoogleSheetsService {
   }
 
   async addQuoteRecord(quoteType, formData, quoteId, isBusinessQuote = false) {
-    if (!this.spreadsheetId) {
-      console.error('Error: El ID de la hoja de cálculo de Google (GOOGLE_SHEET_ID) no está configurado.');
-      return;
+    if (!this.sheets || !this.spreadsheetId) {
+      console.error('Error: GoogleSheetsService no está inicializado correctamente.');
+      console.error('Sheets instance:', !!this.sheets);
+      console.error('Spreadsheet ID:', !!this.spreadsheetId);
+      return false;
     }
 
     try {
-      const range = 'Cotizaciones!A1';
-      const values = [this._prepareSheetData(quoteType, formData, quoteId, isBusinessQuote)];
+      console.log(`Intentando guardar cotización #${quoteId} en Google Sheets...`);
       
-      const resource = { values };
+      // Preparar los datos
+      const rowData = this._prepareSheetData(quoteType, formData, quoteId, isBusinessQuote);
+      console.log('Datos preparados para Google Sheets:', {
+        timestamp: rowData[0],
+        quoteId: rowData[1],
+        quoteType: rowData[2],
+        contactName: rowData[3]
+      });
       
-      await this.sheets.spreadsheets.values.append({
+      // Primero verificar si la hoja existe
+      try {
+        await this.sheets.spreadsheets.get({
+          spreadsheetId: this.spreadsheetId
+        });
+        console.log('Hoja de cálculo encontrada y accesible');
+      } catch (accessError) {
+        console.error('Error accediendo a la hoja de cálculo:', accessError.message);
+        throw new Error(`No se puede acceder a la hoja: ${accessError.message}`);
+      }
+      
+      // Encontrar la siguiente fila disponible después de los datos existentes
+      console.log('🔍 Buscando la última fila con datos...');
+      let nextRow = 2; // Empezar en fila 2 (asumiendo que fila 1 es header)
+      
+      try {
+        // Obtener todos los datos existentes en la columna A (timestamp) para encontrar la última fila
+        const existingData = await this.sheets.spreadsheets.values.get({
+          spreadsheetId: this.spreadsheetId,
+          range: 'Cotizaciones!A:A', // Solo columna A para ser eficiente
+        });
+        
+        if (existingData.data.values && existingData.data.values.length > 1) {
+          // La última fila con datos + 1
+          nextRow = existingData.data.values.length + 1;
+          console.log(`📍 Última fila con datos: ${existingData.data.values.length}, insertando en fila: ${nextRow}`);
+        } else {
+          console.log('📍 No hay datos existentes, insertando en fila 2 (después del header)');
+          nextRow = 2;
+        }
+      } catch (dataError) {
+        console.log('⚠️ No se pudo determinar la última fila, insertando en fila 2');
+        nextRow = 2;
+      }
+      
+      // Usar update en lugar de append para insertar en la fila específica
+      const targetRange = `Cotizaciones!A${nextRow}:M${nextRow}`;
+      console.log(`📝 Insertando datos en rango: ${targetRange}`);
+      
+      const result = await this.sheets.spreadsheets.values.update({
         spreadsheetId: this.spreadsheetId,
-        range,
+        range: targetRange,
         valueInputOption: 'USER_ENTERED',
-        resource,
+        resource: {
+          values: [rowData],
+          majorDimension: 'ROWS'
+        },
       });
 
-      console.log(`Registro de cotización #${quoteId} guardado exitosamente en Google Sheets.`);
+      if (result && result.data) {
+        console.log(`✅ Registro de cotización #${quoteId} guardado exitosamente en Google Sheets en la fila ${nextRow}.`);
+        console.log('Resultado:', {
+          updatedCells: result.data.updatedCells,
+          updatedRows: result.data.updatedRows,
+          updatedRange: result.data.updatedRange
+        });
+        return true;
+      } else {
+        throw new Error('Respuesta inesperada de Google Sheets API');
+      }
 
     } catch (error) {
-      console.error(`Error al guardar en Google Sheets para la cotización #${quoteId}:`, error.message);
+      console.error(`❌ Error detallado al guardar en Google Sheets para la cotización #${quoteId}:`);
+      console.error('Mensaje de error:', error.message);
+      console.error('Código de error:', error.code);
+      console.error('Detalles del error:', error.errors);
+      console.error('Stack trace:', error.stack);
+      
+      // Información de debug adicional
+      console.error('Debug info:', {
+        spreadsheetId: this.spreadsheetId,
+        hasSheets: !!this.sheets,
+        quoteType,
+        quoteId,
+        isBusinessQuote
+      });
+      
+      return false;
     }
   }
 }
+
+// Función para determinar el destinatario del correo según el tipo de seguro
+const getAdminEmail = (quoteType, isBusinessQuote) => {
+  if (isBusinessQuote) {
+    return process.env.ADMIN_EMAIL_EMPRESARIAL || 'juanpablog857@gmail.com';
+  }
+
+  // Mapeo de tipos de seguros personales a variables de entorno
+  const emailMapping = {
+    'vehiculos': process.env.ADMIN_EMAIL_AUTO,
+    'salud': process.env.ADMIN_EMAIL_SALUD,
+    'vida': process.env.ADMIN_EMAIL_VIDA,
+    'mascotas': process.env.ADMIN_EMAIL_MASCOTAS,
+    'hogar': process.env.ADMIN_EMAIL_HOGAR
+  };
+
+  return emailMapping[quoteType] || process.env.ADMIN_EMAIL_AUTO || 'jpgomez@stayirrelevant.com';
+};
+
+// Función para obtener la lista completa de destinatarios (TO + CC)
+const getEmailRecipients = (quoteType, isBusinessQuote) => {
+  const mainEmail = getAdminEmail(quoteType, isBusinessQuote);
+  const ccEmail = process.env.ADMIN_CC_EMAIL || 'jpgomez@stayirrelevant.com';
+  
+  // Si el correo principal es el mismo que el CC, solo enviar a uno
+  const recipients = [mainEmail];
+  if (mainEmail !== ccEmail) {
+    recipients.push(ccEmail);
+  }
+  
+  return {
+    to: [mainEmail],
+    cc: mainEmail !== ccEmail ? [ccEmail] : []
+  };
+};
 
 // Función para generar contenido del correo según el tipo
 const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => {
@@ -322,34 +509,64 @@ exports.handler = async (event, context) => {
     `;
 
     // 1. Guardar en Google Sheets primero
+    let sheetsSuccess = false;
     try {
+      console.log('🔄 Inicializando GoogleSheetsService...');
       const sheetsService = new GoogleSheetsService();
-      await sheetsService.addQuoteRecord(quoteType, formData, quoteId, isBusinessQuote);
-      console.log('Quote saved to Google Sheets successfully');
+      
+      console.log('🔄 Intentando guardar en Google Sheets...');
+      sheetsSuccess = await sheetsService.addQuoteRecord(quoteType, formData, quoteId, isBusinessQuote);
+      
+      if (sheetsSuccess) {
+        console.log('✅ Cotización guardada en Google Sheets exitosamente');
+      } else {
+        console.error('❌ Falló el guardado en Google Sheets');
+      }
     } catch (sheetsError) {
-      console.error('Error saving to Google Sheets:', sheetsError);
+      console.error('❌ Excepción al guardar en Google Sheets:', sheetsError.message);
+      console.error('Stack trace completo:', sheetsError.stack);
     }
 
-    // 2. Enviar correo al administrador
+    // 2. Enviar correo al administrador con destinatarios dinámicos
     let adminEmailId = null;
     try {
+      const recipients = getEmailRecipients(quoteType, isBusinessQuote);
       console.log('Intentando enviar correo al administrador...');
-      const adminEmail = await resend.emails.send({
+      console.log('📧 Destinatarios:', {
+        to: recipients.to,
+        cc: recipients.cc,
+        quoteType: quoteType,
+        isBusinessQuote: isBusinessQuote
+      });
+      
+      const emailData = {
         from: 'notificaciones@updates.stayirrelevant.com',
-        to: ['juanpablog857@gmail.com'],
+        to: recipients.to,
         subject: `Nueva Solicitud de Cotización #${quoteId} - ${insuranceType}${isBusinessQuote ? ' (Empresarial)' : ''}`,
         html: adminEmailTemplate,
-      });
+      };
+      
+      // Agregar CC solo si hay destinatarios en copia
+      if (recipients.cc && recipients.cc.length > 0) {
+        emailData.cc = recipients.cc;
+        console.log('📧 Agregando CC:', recipients.cc);
+      }
+      
+      const adminEmail = await resend.emails.send(emailData);
 
       if (adminEmail && adminEmail.data && adminEmail.data.id) {
         adminEmailId = adminEmail.data.id;
-        console.log('Correo al administrador enviado exitosamente:', adminEmailId);
+        console.log('✅ Correo al administrador enviado exitosamente:', adminEmailId);
+        console.log('📧 Enviado a:', recipients.to);
+        if (recipients.cc.length > 0) {
+          console.log('📧 Con copia a:', recipients.cc);
+        }
       } else {
         console.log('Respuesta del correo admin:', JSON.stringify(adminEmail, null, 2));
         throw new Error('La respuesta del envío de correo no tiene el formato esperado');
       }
     } catch (emailError) {
-      console.error('Error enviando correo al administrador:', emailError);
+      console.error('❌ Error enviando correo al administrador:', emailError);
     }
 
     // 3. Enviar correo al usuario (si se proporcionó email)
@@ -388,7 +605,10 @@ exports.handler = async (event, context) => {
         success: true,
         adminEmailId: adminEmailId,
         userEmailId: userEmailId,
-        message: 'Solicitud procesada exitosamente',
+        sheetsSuccess: sheetsSuccess,
+        message: sheetsSuccess ? 
+          'Solicitud procesada exitosamente' : 
+          'Solicitud procesada, pero falló el guardado en Google Sheets',
         quoteType: isBusinessQuote ? 'empresarial' : 'personal'
       })
     };
