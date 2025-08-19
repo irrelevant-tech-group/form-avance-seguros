@@ -10,40 +10,18 @@ class GoogleSheetsService {
     try {
       console.log('🔄 Inicializando GoogleSheetsService...');
       
-      // Intentar múltiples métodos de autenticación
+      // Priorizar variables de entorno para compatibilidad con Netlify
       let auth;
       
-      // Método 1: Intentar con archivo de credenciales JSON si existe
-      try {
-        const fs = require('fs');
-        const path = require('path');
-        const credsPath = path.join(__dirname, '../../creds.json');
-        
-        if (fs.existsSync(credsPath)) {
-          console.log('✅ Encontrado archivo creds.json, usando autenticación con archivo');
-          auth = new google.auth.GoogleAuth({
-            keyFile: credsPath,
-            scopes: [
-              'https://www.googleapis.com/auth/spreadsheets',
-              'https://www.googleapis.com/auth/drive.file'
-            ],
-          });
-        } else {
-          throw new Error('Archivo creds.json no encontrado');
-        }
-      } catch (fileError) {
-        console.log('⚠️ Método de archivo falló, intentando con variables de entorno...');
-        
-        // Método 2: Variables de entorno con mejor manejo
-        if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
-          throw new Error('Variables de entorno de Google faltantes');
-        }
+      // Método 1: Variables de entorno (PRIORIDAD en producción)
+      if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+        console.log('🔑 Usando autenticación con variables de entorno (producción)...');
         
         // Limpiar y formatear la clave privada correctamente
         let privateKey = process.env.GOOGLE_PRIVATE_KEY;
         
         if (!privateKey.includes('BEGIN PRIVATE KEY')) {
-          throw new Error('Formato de clave privada inválido');
+          throw new Error('Formato de clave privada inválido en variables de entorno');
         }
         
         // Múltiples intentos de limpieza de la clave
@@ -79,6 +57,31 @@ class GoogleSheetsService {
             'https://www.googleapis.com/auth/drive.file'
           ],
         });
+        
+      } else {
+        // Método 2: Fallback a archivo de credenciales (solo desarrollo local)
+        console.log('⚠️ Variables de entorno no encontradas, intentando con archivo creds.json...');
+        
+        try {
+          const fs = require('fs');
+          const path = require('path');
+          const credsPath = path.join(__dirname, '../../creds.json');
+          
+          if (fs.existsSync(credsPath)) {
+            console.log('📁 Usando archivo creds.json (desarrollo local)');
+            auth = new google.auth.GoogleAuth({
+              keyFile: credsPath,
+              scopes: [
+                'https://www.googleapis.com/auth/spreadsheets',
+                'https://www.googleapis.com/auth/drive.file'
+              ],
+            });
+          } else {
+            throw new Error('Archivo creds.json no encontrado y variables de entorno faltantes');
+          }
+        } catch (fileError) {
+          throw new Error('No se pudo configurar la autenticación: faltan variables de entorno y archivo creds.json');
+        }
       }
 
       this.sheets = google.sheets({ version: 'v4', auth });
