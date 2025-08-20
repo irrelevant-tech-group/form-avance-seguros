@@ -13,9 +13,39 @@ class GoogleSheetsService {
       // Priorizar variables de entorno para compatibilidad con Netlify
       let auth;
       
-      // Método 1: Variables de entorno (PRIORIDAD en producción)
-      if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
-        console.log('🔑 Usando autenticación con variables de entorno (producción)...');
+      // Método 1: Credenciales desde Base64 (PRIORIDAD en producción)
+      if (process.env.GOOGLE_CREDENTIALS_BASE64) {
+        console.log('🔑 Usando credenciales desde Base64 (producción)...');
+        
+        try {
+          // Decodificar las credenciales desde base64
+          const credentialsJson = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf-8');
+          const credentials = JSON.parse(credentialsJson);
+          
+          console.log('📋 Credenciales decodificadas exitosamente:', {
+            hasType: !!credentials.type,
+            hasProjectId: !!credentials.project_id,
+            hasClientEmail: !!credentials.client_email,
+            hasPrivateKey: !!credentials.private_key,
+            clientEmail: credentials.client_email?.substring(0, 30) + '...'
+          });
+          
+          auth = new google.auth.GoogleAuth({
+            credentials: credentials,
+            scopes: [
+              'https://www.googleapis.com/auth/spreadsheets',
+              'https://www.googleapis.com/auth/drive.file'
+            ],
+          });
+          
+        } catch (decodeError) {
+          console.error('❌ Error decodificando credenciales desde base64:', decodeError.message);
+          throw new Error(`Error al decodificar credenciales base64: ${decodeError.message}`);
+        }
+        
+      } else if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+        // Método 2: Variables individuales (fallback)
+        console.log('🔑 Usando autenticación con variables individuales (fallback)...');
         console.log('📋 Variables detectadas:', {
           hasClientEmail: !!process.env.GOOGLE_CLIENT_EMAIL,
           hasPrivateKey: !!process.env.GOOGLE_PRIVATE_KEY,
@@ -65,7 +95,7 @@ class GoogleSheetsService {
         });
         
       } else {
-        // Método 2: Fallback a archivo de credenciales (solo desarrollo local)
+        // Método 3: Fallback a archivo de credenciales (solo desarrollo local)
         console.log('⚠️ Variables de entorno no encontradas, intentando con archivo creds.json...');
         
         try {
@@ -86,7 +116,7 @@ class GoogleSheetsService {
             throw new Error('Archivo creds.json no encontrado y variables de entorno faltantes');
           }
         } catch (fileError) {
-          throw new Error('No se pudo configurar la autenticación: faltan variables de entorno y archivo creds.json');
+          throw new Error('No se pudo configurar la autenticación: faltan credenciales base64, variables individuales y archivo creds.json');
         }
       }
 
