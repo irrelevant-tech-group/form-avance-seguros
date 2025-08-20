@@ -16,6 +16,12 @@ class GoogleSheetsService {
       // Método 1: Variables de entorno (PRIORIDAD en producción)
       if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
         console.log('🔑 Usando autenticación con variables de entorno (producción)...');
+        console.log('📋 Variables detectadas:', {
+          hasClientEmail: !!process.env.GOOGLE_CLIENT_EMAIL,
+          hasPrivateKey: !!process.env.GOOGLE_PRIVATE_KEY,
+          hasSheetId: !!process.env.GOOGLE_SHEET_ID,
+          clientEmail: process.env.GOOGLE_CLIENT_EMAIL?.substring(0, 20) + '...'
+        });
         
         // Limpiar y formatear la clave privada correctamente
         let privateKey = process.env.GOOGLE_PRIVATE_KEY;
