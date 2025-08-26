@@ -344,84 +344,255 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
       'arl': 'ARL'
     };
 
-    return `
+    let content = `
       <h2>Nueva Solicitud de Cotización Empresarial</h2>
       <p><strong>Tipo de Seguro:</strong> ${typeLabels[quoteType] || quoteType}</p>
       <p><strong>Número de Radicado:</strong> ${quoteId}</p>
       <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-CO')}</p>
-      
-      <h3>Información de la Empresa:</h3>
-      <ul>
-        <li><strong>Nombre del Contacto:</strong> ${formData.nombreContacto}</li>
-        <li><strong>NIT:</strong> ${formData.nit}</li>
-        <li><strong>Razón Social:</strong> ${formData.razonSocial}</li>
-        <li><strong>Dirección:</strong> ${formData.direccion}</li>
-        <li><strong>Teléfono:</strong> ${formData.telefono}</li>
-        <li><strong>Correo Electrónico:</strong> ${formData.correoElectronico}</li>
-        <li><strong>Objeto Social:</strong> ${formData.objetoSocial}</li>
-        <li><strong>Persona de Contacto:</strong> ${formData.personaContacto}</li>
-        <li><strong>Representante Legal:</strong> ${formData.representanteLegal}</li>
-        ${formData.mensajeAdicional ? `<li><strong>Mensaje Adicional:</strong> ${formData.mensajeAdicional}</li>` : ''}
-      </ul>
     `;
+    
+    // Para tipo CORPORATIVOS - estructura especial con DEL TOMADOR, DE LA EMPRESA, INVENTARIO
+    if (quoteType === 'corporativos') {
+      content += `
+        <h3>DEL TOMADOR:</h3>
+        <ul>
+          <li><strong>Razón Social:</strong> ${formData.razonSocial || 'No especificado'}</li>
+          <li><strong>Identificación:</strong> ${formData.identificacion || 'No especificado'}</li>
+          <li><strong>Dirección:</strong> ${formData.direccion || 'No especificado'}</li>
+          <li><strong>Objeto Social:</strong> ${formData.objetoSocial || 'No especificado'}</li>
+          <li><strong>Persona de Contacto:</strong> ${formData.personaContacto || 'No especificado'}</li>
+          <li><strong>Celular:</strong> ${formData.celular || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
+          <li><strong>Representante Legal:</strong> ${formData.representanteLegal || 'No especificado'}</li>
+        </ul>
+        
+        <h3>DE LA EMPRESA:</h3>
+        <ul>
+          <li><strong>Dirección del Riesgo:</strong> ${formData.direccionRiesgo || 'No especificado'}</li>
+          <li><strong>Local Propio o Alquilado:</strong> ${formData.localPropioAlquilado || 'No especificado'}</li>
+          <li><strong>Área m² construidos:</strong> ${formData.areaM2 || 'No especificado'}</li>
+          <li><strong>Número de pisos:</strong> ${formData.numeroPisos || 'No especificado'}</li>
+          <li><strong>Mejoras Locativas:</strong> $${formData.mejorasLocativas ? parseInt(formData.mejorasLocativas).toLocaleString() : 'No especificado'}</li>
+        </ul>
+        
+        <h3>INVENTARIO:</h3>
+        <ul>
+          <li><strong>Valor global Equipos eléctricos:</strong> $${formData.valorEquiposElectricos ? parseInt(formData.valorEquiposElectricos).toLocaleString() : 'No especificado'}</li>
+          <li><strong>Valor global Muebles y Enseres:</strong> $${formData.valorMueblesEnseres ? parseInt(formData.valorMueblesEnseres).toLocaleString() : 'No especificado'}</li>
+          <li><strong>Valor global mercancías fijas:</strong> $${formData.valorMercanciasFijas ? parseInt(formData.valorMercanciasFijas).toLocaleString() : 'No especificado'}</li>
+          <li><strong>Valor global Maquinaria y Equipo:</strong> $${formData.valorMaquinariaEquipo ? parseInt(formData.valorMaquinariaEquipo).toLocaleString() : 'No especificado'}</li>
+          <li><strong>Valor global equipos móviles:</strong> $${formData.valorEquiposMoviles ? parseInt(formData.valorEquiposMoviles).toLocaleString() : 'No especificado'}</li>
+        </ul>`;
+        
+        // Calcular total del inventario si hay valores
+        const inventarioTotal = [
+          parseInt(formData.valorEquiposElectricos || '0'),
+          parseInt(formData.valorMueblesEnseres || '0'),
+          parseInt(formData.valorMercanciasFijas || '0'),
+          parseInt(formData.valorMaquinariaEquipo || '0'),
+          parseInt(formData.valorEquiposMoviles || '0')
+        ].reduce((sum, val) => sum + val, 0);
+        
+        if (inventarioTotal > 0) {
+          content += `
+            <div style="background-color: #e8f5e9; padding: 10px; margin: 10px 0; border-radius: 5px;">
+              <p><strong>VALOR TOTAL DEL INVENTARIO: $${inventarioTotal.toLocaleString()}</strong></p>
+            </div>`;
+        }
+        
+    } else {
+      // Para otros tipos empresariales (ARL, transporte, etc.) - estructura original
+      content += `
+        <h3>Información de la Empresa:</h3>
+        <ul>
+          <li><strong>Nombre del Contacto:</strong> ${formData.nombreContacto || 'No especificado'}</li>
+          <li><strong>NIT:</strong> ${formData.nit || 'No especificado'}</li>
+          <li><strong>Razón Social:</strong> ${formData.razonSocial || 'No especificado'}</li>
+          <li><strong>Dirección:</strong> ${formData.direccion || 'No especificado'}</li>
+          <li><strong>Teléfono:</strong> ${formData.telefono || 'No especificado'}</li>
+          <li><strong>Correo Electrónico:</strong> ${formData.correoElectronico || 'No especificado'}</li>
+          <li><strong>Objeto Social:</strong> ${formData.objetoSocial || 'No especificado'}</li>
+          <li><strong>Persona de Contacto:</strong> ${formData.personaContacto || 'No especificado'}</li>
+          <li><strong>Representante Legal:</strong> ${formData.representanteLegal || 'No especificado'}</li>
+          ${formData.mensajeAdicional ? `<li><strong>Mensaje Adicional:</strong> ${formData.mensajeAdicional}</li>` : ''}
+        </ul>`;
+      
+      // Campos específicos de TRANSPORTE
+      if (quoteType === 'transporte') {
+        content += `
+          <h3>DATOS DE TRANSPORTE:</h3>
+          <h4>Despachos Nacionales:</h4>
+          <ul>
+            <li><strong>Presupuesto anual de movilizaciones:</strong> $${formData.presupuestoAnualMovilizaciones ? parseInt(formData.presupuestoAnualMovilizaciones).toLocaleString() : 'No especificado'}</li>
+            <li><strong>Presupuesto anual de Ventas:</strong> $${formData.presupuestoAnualVentas ? parseInt(formData.presupuestoAnualVentas).toLocaleString() : 'No especificado'}</li>
+            <li><strong>Límite máximo por despacho nacional:</strong> $${formData.limiteMaximoDespachoNacional ? parseInt(formData.limiteMaximoDespachoNacional).toLocaleString() : 'No especificado'}</li>
+          </ul>
+          <h4>Importaciones:</h4>
+          <ul>
+            <li><strong>Presupuesto anual de importaciones:</strong> $${formData.presupuestoAnualImportaciones ? parseInt(formData.presupuestoAnualImportaciones).toLocaleString() : 'No especificado'}</li>
+            <li><strong>Límite máximo por despacho de importación:</strong> $${formData.limiteMaximoDespachoImportacion ? parseInt(formData.limiteMaximoDespachoImportacion).toLocaleString() : 'No especificado'}</li>
+          </ul>
+          <h4>Exportaciones:</h4>
+          <ul>
+            <li><strong>Presupuesto anual de exportaciones:</strong> $${formData.presupuestoAnualExportaciones ? parseInt(formData.presupuestoAnualExportaciones).toLocaleString() : 'No especificado'}</li>
+            <li><strong>Límite máximo por despacho de exportación:</strong> $${formData.limiteMaximoDespachoExportacion ? parseInt(formData.limiteMaximoDespachoExportacion).toLocaleString() : 'No especificado'}</li>
+          </ul>`;
+      }
+      
+      // Campos específicos de ARL
+      if (quoteType === 'arl') {
+        content += `
+          <h3>DATOS DE ARL:</h3>
+          <ul>
+            <li><strong>Número de empleados:</strong> ${formData.numeroEmpleados || 'No especificado'}</li>
+            <li><strong>ARL actual:</strong> ${formData.arlActual || 'No especificado'}</li>
+            <li><strong>Valor aportes mensual solo ARL:</strong> $${formData.valorAportesMensualARL ? parseInt(formData.valorAportesMensualARL).toLocaleString() : 'No especificado'}</li>
+          </ul>`;
+      }
+    }
+    
+    return content;
   } else {
     const insuranceType = quoteType === 'vehiculos' ? 'Auto' : 
                          quoteType === 'vida' ? 'Vida' : 
                          quoteType === 'salud' ? 'Salud' :
                          quoteType === 'mascotas' ? 'Mascotas' : 'Hogar';
 
-    return `
-      <h2>Tipo de Seguro: ${insuranceType}</h2>
-      
-      <h3>Información del Solicitante:</h3>
-      <ul>
-        <li><strong>Nombre:</strong> ${formData.ownerName || formData.nombreCompleto}</li>
-        <li><strong>Documento:</strong> ${formData.identification || formData.numeroDocumento}</li>
-        <li><strong>Teléfono:</strong> ${formData.phone || formData.celular}</li>
-        <li><strong>Email:</strong> ${formData.email || 'No proporcionado'}</li>
-        ${formData.birthDate ? `<li><strong>Fecha de Nacimiento:</strong> ${formData.birthDate}</li>` : ''}
-        ${formData.address ? `<li><strong>Dirección:</strong> ${formData.address}</li>` : ''}
-      </ul>
-      
-      ${quoteType === 'vehiculos' ? `
-        <h3>Información del Vehículo:</h3>
+    let content = `<h2>Tipo de Seguro: ${insuranceType}</h2>`;
+    
+    // INFORMACIÓN COMPLETA SEGÚN EL TIPO DE FORMULARIO
+    if (quoteType === 'vehiculos') {
+      content += `
+        <h3>Información del Propietario:</h3>
         <ul>
-          <li><strong>Placa:</strong> ${formData.licensePlate || 'N/A'}</li>
-          <li><strong>Marca:</strong> ${formData.brand}</li>
-          <li><strong>Modelo:</strong> ${formData.model}</li>
-          <li><strong>Año:</strong> ${formData.year}</li>
-          <li><strong>Tipo:</strong> ${formData.vehicleType}</li>
-          <li><strong>Transmisión:</strong> ${formData.transmission}</li>
-          <li><strong>Prenda:</strong> ${formData.hasLien === 'si' ? 'Sí' : 'No'}</li>
-          ${formData.lienDetails ? `<li><strong>Entidad:</strong> ${formData.lienDetails}</li>` : ''}
-        </ul>
-      ` : quoteType === 'vida' || quoteType === 'salud' ? `
-        <h3>Información de Salud:</h3>
-        <ul>
-          <li><strong>Enfermedad:</strong> ${formData.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
-          ${formData.cualEnfermedad ? `<li><strong>Detalle:</strong> ${formData.cualEnfermedad}</li>` : ''}
-          <li><strong>Asegurar a más personas:</strong> ${formData.deseaAsegurarAlguienMas === 'si' ? 'Sí' : 'No'}</li>
-          ${formData.cantidadPersonasAdicionales ? `<li><strong>Cantidad adicional:</strong> ${formData.cantidadPersonasAdicionales}</li>` : ''}
+          <li><strong>Nombre del Propietario:</strong> ${formData.ownerName || 'No especificado'}</li>
+          <li><strong>Documento:</strong> ${formData.identification || 'No especificado'}</li>
+          <li><strong>Teléfono:</strong> ${formData.phone || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || formData.additionalEmail || 'No especificado'}</li>
+          <li><strong>Dirección:</strong> ${formData.address || 'No especificado'}</li>
+          <li><strong>Fecha de Nacimiento:</strong> ${formData.birthDate || 'No especificado'}</li>
+          <li><strong>Género:</strong> ${formData.gender || 'No especificado'}</li>
+          <li><strong>Estado Civil:</strong> ${formData.maritalStatus || 'No especificado'}</li>
+          <li><strong>Ciudad de Residencia:</strong> ${formData.city || 'No especificado'}</li>
+          <li><strong>Profesión:</strong> ${formData.profession || 'No especificado'}</li>
         </ul>
         
-        ${formData.personasAdicionales && formData.personasAdicionales.length > 0 ? `
-          <h3>Personas Adicionales:</h3>
-          ${formData.personasAdicionales.map((persona, index) => `
-            <div style="margin-left: 20px; margin-bottom: 10px;">
+        <h3>Información del Vehículo:</h3>
+        <ul>
+          <li><strong>Placa:</strong> ${formData.licensePlate || 'Sin placa/Vehículo nuevo'}</li>
+          <li><strong>Marca:</strong> ${formData.brand || 'No especificado'}</li>
+          <li><strong>Modelo:</strong> ${formData.model || 'No especificado'}</li>
+          <li><strong>Año:</strong> ${formData.year || 'No especificado'}</li>
+          <li><strong>Tipo de Vehículo:</strong> ${formData.vehicleType || 'No especificado'}</li>
+          <li><strong>Transmisión:</strong> ${formData.transmission || 'No especificado'}</li>
+          <li><strong>Uso del Vehículo:</strong> ${formData.vehicleUse || 'No especificado'}</li>
+          <li><strong>¿Tiene Prenda?:</strong> ${formData.hasLien === 'si' ? 'Sí' : 'No'}</li>
+          ${formData.lienDetails ? `<li><strong>Entidad Financiera:</strong> ${formData.lienDetails}</li>` : ''}
+          <li><strong>Valor Comercial Aproximado:</strong> ${formData.commercialValue ? '$' + parseInt(formData.commercialValue).toLocaleString() : 'No especificado'}</li>
+        </ul>`;
+        
+    } else if (quoteType === 'vida' || quoteType === 'salud') {
+      content += `
+        <h3>Información Personal:</h3>
+        <ul>
+          <li><strong>Nombre Completo:</strong> ${formData.nombreCompleto || 'No especificado'}</li>
+          <li><strong>Tipo de Documento:</strong> ${formData.tipoDocumento || 'No especificado'}</li>
+          <li><strong>Número de Documento:</strong> ${formData.numeroDocumento || 'No especificado'}</li>
+          <li><strong>Fecha de Nacimiento:</strong> ${formData.fechaNacimiento || 'No especificado'}</li>
+          <li><strong>Teléfono/Celular:</strong> ${formData.celular || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
+          <li><strong>Ciudad:</strong> ${formData.ciudad || 'No especificado'}</li>
+          <li><strong>Dirección:</strong> ${formData.direccion || 'No especificado'}</li>
+          <li><strong>Género:</strong> ${formData.genero || 'No especificado'}</li>
+          <li><strong>Estado Civil:</strong> ${formData.estadoCivil || 'No especificado'}</li>
+          <li><strong>Profesión:</strong> ${formData.profesion || 'No especificado'}</li>
+          <li><strong>Ingresos Mensuales:</strong> ${formData.ingresosMensuales ? '$' + parseInt(formData.ingresosMensuales).toLocaleString() : 'No especificado'}</li>
+        </ul>
+        
+        <h3>Información de Salud:</h3>
+        <ul>
+          <li><strong>¿Sufre alguna enfermedad?:</strong> ${formData.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
+          ${formData.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${formData.cualEnfermedad}</li>` : ''}
+          <li><strong>¿Desea asegurar a alguien más?:</strong> ${formData.deseaAsegurarAlguienMas === 'si' ? 'Sí' : 'No'}</li>
+          ${formData.cantidadPersonasAdicionales ? `<li><strong>Cantidad de personas adicionales:</strong> ${formData.cantidadPersonasAdicionales}</li>` : ''}
+        </ul>`;
+        
+      // Personas adicionales
+      if (formData.personasAdicionales && formData.personasAdicionales.length > 0) {
+        content += `<h3>Personas Adicionales a Asegurar:</h3>`;
+        formData.personasAdicionales.forEach((persona, index) => {
+          content += `
+            <div style="margin-left: 20px; margin-bottom: 15px; border-left: 3px solid #0A4958; padding-left: 15px;">
               <h4>Persona ${index + 1}:</h4>
               <ul>
-                <li><strong>Nombre:</strong> ${persona.nombreCompleto}</li>
-                <li><strong>Documento:</strong> ${persona.numeroDocumento}</li>
-                <li><strong>Fecha de Nacimiento:</strong> ${persona.fechaNacimiento}</li>
-                <li><strong>Teléfono:</strong> ${persona.celular}</li>
-                <li><strong>Enfermedad:</strong> ${persona.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
-                ${persona.cualEnfermedad ? `<li><strong>Detalle:</strong> ${persona.cualEnfermedad}</li>` : ''}
+                <li><strong>Nombre:</strong> ${persona.nombreCompleto || 'No especificado'}</li>
+                <li><strong>Tipo de Documento:</strong> ${persona.tipoDocumento || 'No especificado'}</li>
+                <li><strong>Número de Documento:</strong> ${persona.numeroDocumento || 'No especificado'}</li>
+                <li><strong>Fecha de Nacimiento:</strong> ${persona.fechaNacimiento || 'No especificado'}</li>
+                <li><strong>Teléfono:</strong> ${persona.celular || 'No especificado'}</li>
+                <li><strong>Género:</strong> ${persona.genero || 'No especificado'}</li>
+                <li><strong>¿Sufre alguna enfermedad?:</strong> ${persona.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
+                ${persona.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${persona.cualEnfermedad}</li>` : ''}
               </ul>
-            </div>
-          `).join('')}
-        ` : ''}
-      ` : ''}
-    `;
+            </div>`;
+        });
+      }
+      
+    } else if (quoteType === 'hogar') {
+      content += `
+        <h3>Información Personal:</h3>
+        <ul>
+          <li><strong>Nombre Completo:</strong> ${formData.nombreCompleto || 'No especificado'}</li>
+          <li><strong>Tipo de Documento:</strong> ${formData.tipoDocumento || 'No especificado'}</li>
+          <li><strong>Número de Documento:</strong> ${formData.numeroDocumento || 'No especificado'}</li>
+          <li><strong>Teléfono/Celular:</strong> ${formData.celular || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
+          <li><strong>Ciudad:</strong> ${formData.ciudad || 'No especificado'}</li>
+          <li><strong>Dirección del Inmueble:</strong> ${formData.direccionInmueble || 'No especificado'}</li>
+        </ul>
+        
+        <h3>Información del Inmueble:</h3>
+        <ul>
+          <li><strong>Tipo de Inmueble:</strong> ${formData.tipoInmueble || 'No especificado'}</li>
+          <li><strong>¿Es propietario?:</strong> ${formData.esPropietario === 'si' ? 'Sí' : 'No'}</li>
+          <li><strong>Área construida (m²):</strong> ${formData.areaConstruida || 'No especificado'}</li>
+          <li><strong>Número de pisos:</strong> ${formData.numeroPisos || 'No especificado'}</li>
+          <li><strong>Año de construcción:</strong> ${formData.anioConstruccion || 'No especificado'}</li>
+          <li><strong>Material de construcción:</strong> ${formData.materialConstruccion || 'No especificado'}</li>
+          <li><strong>¿Conjunto cerrado?:</strong> ${formData.conjuntoCerrado === 'si' ? 'Sí' : 'No'}</li>
+          <li><strong>Valor del inmueble:</strong> ${formData.valorInmueble ? '$' + parseInt(formData.valorInmueble).toLocaleString() : 'No especificado'}</li>
+          <li><strong>Valor de contenidos:</strong> ${formData.valorContenidos ? '$' + parseInt(formData.valorContenidos).toLocaleString() : 'No especificado'}</li>
+        </ul>`;
+        
+    } else if (quoteType === 'mascotas') {
+      content += `
+        <h3>Información del Propietario:</h3>
+        <ul>
+          <li><strong>Nombre del Propietario:</strong> ${formData.nombrePropietario || 'No especificado'}</li>
+          <li><strong>Tipo de Documento:</strong> ${formData.tipoDocumento || 'No especificado'}</li>
+          <li><strong>Número de Documento:</strong> ${formData.numeroDocumento || 'No especificado'}</li>
+          <li><strong>Teléfono/Celular:</strong> ${formData.celular || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
+          <li><strong>Ciudad:</strong> ${formData.ciudad || 'No especificado'}</li>
+          <li><strong>Dirección:</strong> ${formData.direccion || 'No especificado'}</li>
+        </ul>
+        
+        <h3>Información de la Mascota:</h3>
+        <ul>
+          <li><strong>Nombre de la mascota:</strong> ${formData.nombreMascota || 'No especificado'}</li>
+          <li><strong>Tipo de animal:</strong> ${formData.tipoAnimal || 'No especificado'}</li>
+          <li><strong>Raza:</strong> ${formData.raza || 'No especificado'}</li>
+          <li><strong>Edad:</strong> ${formData.edadMascota || 'No especificado'} años</li>
+          <li><strong>Peso:</strong> ${formData.pesoMascota || 'No especificado'} kg</li>
+          <li><strong>Género:</strong> ${formData.generoMascota || 'No especificado'}</li>
+          <li><strong>¿Está esterilizada?:</strong> ${formData.esterilizada === 'si' ? 'Sí' : 'No'}</li>
+          <li><strong>¿Tiene vacunas al día?:</strong> ${formData.vacunasAlDia === 'si' ? 'Sí' : 'No'}</li>
+          <li><strong>¿Sufre alguna enfermedad?:</strong> ${formData.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
+          ${formData.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${formData.cualEnfermedad}</li>` : ''}
+        </ul>`;
+    }
+    
+    return content;
   }
 };
 

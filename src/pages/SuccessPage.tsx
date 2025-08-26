@@ -652,7 +652,7 @@ const SuccessPage = () => {
           transition={{ delay: 1.5, duration: 0.5 }}
           className="text-center"
         >
-          <p className="text-gray-600 mb-3">¿Necesitas asistencia inmediata?</p>
+          <p className="text-gray-600 mb-3">Para más información</p>
           <div className="flex flex-col md:flex-row justify-center space-y-3 md:space-y-0 md:space-x-6">
             <motion.a 
               href="tel:+573108483562" 

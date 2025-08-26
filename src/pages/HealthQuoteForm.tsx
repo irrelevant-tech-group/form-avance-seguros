@@ -41,6 +41,12 @@ const healthData = {
     { value: 'salud_total', label: 'Salud Total' },
     { value: 'nueva_eps', label: 'Nueva EPS' },
     { value: 'otra', label: 'Otra' }
+  ],
+  planesSalud: [
+    { value: 'salud_para_2', label: 'Salud para 2' },
+    { value: 'salud_para_todos', label: 'Salud para todos' },
+    { value: 'salud_clasica', label: 'Salud Clásica' },
+    { value: 'salud_global', label: 'Salud Global' }
   ]
 };
 
@@ -61,6 +67,9 @@ const HealthQuoteForm = () => {
     
     // Email adicional
     email: '',
+    
+    // Planes a seleccionar (puede seleccionar múltiples)
+    planesSeleccionados: [],
     
     // Personas adicionales
     personasAdicionales: []
@@ -204,6 +213,29 @@ const HealthQuoteForm = () => {
     }
   };
 
+  const handlePlanToggle = (planValue) => {
+    setFormState(prev => {
+      const currentPlanes = prev.planesSeleccionados;
+      const isSelected = currentPlanes.includes(planValue);
+      
+      return {
+        ...prev,
+        planesSeleccionados: isSelected 
+          ? currentPlanes.filter(plan => plan !== planValue)
+          : [...currentPlanes, planValue]
+      };
+    });
+    
+    // Clear error when field is edited
+    if (errors.planesSeleccionados) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.planesSeleccionados;
+        return newErrors;
+      });
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
     
@@ -215,6 +247,11 @@ const HealthQuoteForm = () => {
     if (!formState.celular) newErrors.celular = 'El campo Celular es requerido';
     if (formState.sufreEnfermedad === 'si' && !formState.cualEnfermedad) {
       newErrors.cualEnfermedad = 'El campo ¿Cuál? es requerido';
+    }
+    
+    // Validar planes seleccionados
+    if (!formState.planesSeleccionados || formState.planesSeleccionados.length === 0) {
+      newErrors.planesSeleccionados = 'Debe seleccionar al menos un plan de salud';
     }
     
     // Validar personas adicionales
@@ -445,6 +482,63 @@ const HealthQuoteForm = () => {
                   onChange={handleInputChange}
                 />
               )}
+              
+              {/* Planes a seleccionar */}
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Planes a seleccionar <span className="text-red-500">*</span>
+                  <span className="text-xs text-gray-500 block mt-1">(Puede seleccionar uno o más planes)</span>
+                </label>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {healthData.planesSalud.map((plan) => (
+                    <div key={plan.value} className="relative">
+                      <label className="flex items-start p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-green-300 hover:bg-green-50 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={formState.planesSeleccionados.includes(plan.value)}
+                          onChange={() => handlePlanToggle(plan.value)}
+                          className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                        />
+                        <div className="ml-3 flex-1">
+                          <span className="text-sm font-medium text-gray-900">{plan.label}</span>
+                        </div>
+                        {formState.planesSeleccionados.includes(plan.value) && (
+                          <div className="ml-2">
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                          </div>
+                        )}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                
+                {errors.planesSeleccionados && (
+                  <p className="text-red-500 text-sm mt-1">{errors.planesSeleccionados}</p>
+                )}
+                
+                {formState.planesSeleccionados.length > 0 && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h4 className="text-sm font-medium text-green-900 mb-2">
+                      Planes seleccionados ({formState.planesSeleccionados.length}):
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {formState.planesSeleccionados.map((planValue) => {
+                        const plan = healthData.planesSalud.find(p => p.value === planValue);
+                        return (
+                          <span 
+                            key={planValue}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                          >
+                            {plan?.label}
+                            <CheckCircle className="ml-1 h-3 w-3" />
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </FormSection>
 

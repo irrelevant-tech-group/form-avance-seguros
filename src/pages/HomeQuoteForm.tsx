@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertTriangle, ArrowRight, Home, Users, User } from 'lucide-react';
+import { CheckCircle, AlertTriangle, ArrowRight, Home, Users, User, Calculator } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Importar componentes del sistema existente
@@ -33,6 +33,14 @@ const homeData = {
     { value: '3', label: '3 personas' },
     { value: '4', label: '4 personas' },
     { value: '5', label: '5 personas' }
+  ],
+  estratos: [
+    { value: '1', label: 'Estrato 1' },
+    { value: '2', label: 'Estrato 2' },
+    { value: '3', label: 'Estrato 3' },
+    { value: '4', label: 'Estrato 4' },
+    { value: '5', label: 'Estrato 5' },
+    { value: '6', label: 'Estrato 6' }
   ]
 };
 
@@ -43,15 +51,29 @@ const HomeQuoteForm = () => {
     nombreCompleto: '',
     tipoDocumento: '',
     numeroDocumento: '',
-    edad: '',
+    fechaNacimiento: '',
     celular: '',
-    sufreEnfermedad: 'no',
-    cualEnfermedad: '',
     deseaAsegurarAlguienMas: 'no',
     cantidadPersonasAdicionales: '1',
     
     // Email adicional
     email: '',
+    
+    // Información del inmueble
+    direccion: '',
+    estrato: '',
+    valorComercial: '',
+    anosConstructed: '',
+    area: '',
+    pisoInmueble: '',
+    pisoEdificio: '',
+    sotanos: '',
+    vigilancia: 'no',
+    unidadCerrada: 'no',
+    
+    // Valor contenidos
+    valorElectricos: '',
+    valorNoElectricos: '',
     
     // Personas adicionales
     personasAdicionales: []
@@ -75,10 +97,8 @@ const HomeQuoteForm = () => {
             nombreCompleto: '',
             tipoDocumento: '',
             numeroDocumento: '',
-            edad: '',
-            celular: '',
-            sufreEnfermedad: 'no',
-            cualEnfermedad: ''
+            fechaNacimiento: '',
+            celular: ''
           });
         }
         setFormState(prev => ({
@@ -104,19 +124,10 @@ const HomeQuoteForm = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // Validar que la edad solo contenga números
-    if (name === 'edad') {
-      const numValue = value.replace(/\D/g, '');
-      setFormState(prev => ({
-        ...prev,
-        [name]: numValue
-      }));
-    } else {
-      setFormState(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    setFormState(prev => ({
+      ...prev,
+      [name]: value
+    }));
     
     // Clear error when field is edited
     if (errors[name]) {
@@ -133,7 +144,7 @@ const HomeQuoteForm = () => {
       ...prev,
       personasAdicionales: prev.personasAdicionales.map(persona => 
         persona.id === personaId 
-          ? { ...persona, [field]: field === 'edad' ? value.replace(/\D/g, '') : value }
+          ? { ...persona, [field]: value }
           : persona
       )
     }));
@@ -211,22 +222,30 @@ const HomeQuoteForm = () => {
     if (!formState.nombreCompleto) newErrors.nombreCompleto = 'El campo Nombre completo es requerido';
     if (!formState.tipoDocumento) newErrors.tipoDocumento = 'El campo Tipo de documento es requerido';
     if (!formState.numeroDocumento) newErrors.numeroDocumento = 'El campo Número documento es requerido';
-    if (!formState.edad) newErrors.edad = 'El campo Edad en años es requerido';
+    if (!formState.fechaNacimiento) newErrors.fechaNacimiento = 'El campo Fecha de nacimiento es requerido';
     if (!formState.celular) newErrors.celular = 'El campo Celular es requerido';
-    if (formState.sufreEnfermedad === 'si' && !formState.cualEnfermedad) {
-      newErrors.cualEnfermedad = 'El campo ¿Cuál? es requerido';
-    }
+    
+    // Validar información del inmueble
+    if (!formState.direccion) newErrors.direccion = 'El campo Dirección es requerido';
+    if (!formState.estrato) newErrors.estrato = 'El campo Estrato es requerido';
+    if (!formState.valorComercial) newErrors.valorComercial = 'El campo Valor comercial es requerido';
+    if (!formState.anosConstructed) newErrors.anosConstructed = 'El campo Años de construcción es requerido';
+    if (!formState.area) newErrors.area = 'El campo Área es requerido';
+    if (!formState.pisoInmueble) newErrors.pisoInmueble = 'El campo No. de pisos del inmueble es requerido';
+    if (!formState.pisoEdificio) newErrors.pisoEdificio = 'El campo No. de pisos del edificio es requerido';
+    if (!formState.sotanos) newErrors.sotanos = 'El campo No. de sótanos es requerido';
+    
+    // Validar valor contenidos
+    if (!formState.valorElectricos) newErrors.valorElectricos = 'El campo Valor eléctricos es requerido';
+    if (!formState.valorNoElectricos) newErrors.valorNoElectricos = 'El campo Valor no eléctricos es requerido';
     
     // Validar personas adicionales
     formState.personasAdicionales.forEach((persona, index) => {
       if (!persona.nombreCompleto) newErrors[`adicional_${persona.id}_nombreCompleto`] = 'El campo Nombre completo es requerido';
       if (!persona.tipoDocumento) newErrors[`adicional_${persona.id}_tipoDocumento`] = 'El campo Tipo de documento es requerido';
       if (!persona.numeroDocumento) newErrors[`adicional_${persona.id}_numeroDocumento`] = 'El campo Número documento es requerido';
-      if (!persona.edad) newErrors[`adicional_${persona.id}_edad`] = 'El campo Edad en años es requerido';
+      if (!persona.fechaNacimiento) newErrors[`adicional_${persona.id}_fechaNacimiento`] = 'El campo Fecha de nacimiento es requerido';
       if (!persona.celular) newErrors[`adicional_${persona.id}_celular`] = 'El campo Celular es requerido';
-      if (persona.sufreEnfermedad === 'si' && !persona.cualEnfermedad) {
-        newErrors[`adicional_${persona.id}_cualEnfermedad`] = 'El campo ¿Cuál? es requerido';
-      }
     });
     
     // Validar email si está presente
@@ -360,13 +379,13 @@ const HomeQuoteForm = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormInput
-                  label="Edad en años"
-                  name="edad"
-                  type="number"
-                  value={formState.edad}
+                  label="Fecha de nacimiento"
+                  name="fechaNacimiento"
+                  type="date"
+                  value={formState.fechaNacimiento}
                   onChange={handleInputChange}
                   required
-                  error={errors.edad}
+                  error={errors.fechaNacimiento}
                 />
                 
                 <PhoneInput
@@ -379,30 +398,6 @@ const HomeQuoteForm = () => {
                 />
               </div>
               
-              <div className="flex gap-6">
-                <div className="flex-1">
-                  <FormRadioGroup
-                    name="sufreEnfermedad"
-                    label="¿Sufre de alguna enfermedad?"
-                    options={homeData.yesNoOptions}
-                    value={formState.sufreEnfermedad}
-                    onChange={handleRadioChange}
-                    error={errors.sufreEnfermedad}
-                  />
-                </div>
-                
-                {formState.sufreEnfermedad === 'si' && (
-                  <div className="flex-1">
-                    <FormInput
-                      label="¿Cuál?"
-                      name="cualEnfermedad"
-                      value={formState.cualEnfermedad}
-                      onChange={handleInputChange}
-                      error={errors.cualEnfermedad}
-                    />
-                  </div>
-                )}
-              </div>
               
               <FormRadioGroup
                 name="deseaAsegurarAlguienMas"
@@ -462,12 +457,12 @@ const HomeQuoteForm = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
-                    label="Edad en años"
-                    type="number"
-                    value={persona.edad}
-                    onChange={(e) => handleAdditionalPersonChange(persona.id, 'edad', e.target.value)}
+                    label="Fecha de nacimiento"
+                    type="date"
+                    value={persona.fechaNacimiento}
+                    onChange={(e) => handleAdditionalPersonChange(persona.id, 'fechaNacimiento', e.target.value)}
                     required
-                    error={errors[`adicional_${persona.id}_edad`]}
+                    error={errors[`adicional_${persona.id}_fechaNacimiento`]}
                   />
                   
                   <PhoneInput
@@ -479,32 +474,184 @@ const HomeQuoteForm = () => {
                   />
                 </div>
                 
-                <div className="flex gap-6">
-                  <div className="flex-1">
-                    <FormRadioGroup
-                      name={`sufreEnfermedad_${persona.id}`}
-                      label="¿Sufre de alguna enfermedad?"
-                      options={homeData.yesNoOptions}
-                      value={persona.sufreEnfermedad}
-                      onChange={(e) => handleAdditionalPersonRadioChange(persona.id, e.target.value)}
-                     error={errors[`adicional_${persona.id}_sufreEnfermedad`]}
-                   />
-                 </div>
-                 
-                 {persona.sufreEnfermedad === 'si' && (
-                   <div className="flex-1">
-                     <FormInput
-                       label="¿Cuál?"
-                       value={persona.cualEnfermedad}
-                       onChange={(e) => handleAdditionalPersonChange(persona.id, 'cualEnfermedad', e.target.value)}
-                       error={errors[`adicional_${persona.id}_cualEnfermedad`]}
-                     />
-                   </div>
-                 )}
-               </div>
              </div>
            </FormSection>
          ))}
+
+         {/* Información del inmueble */}
+         <FormSection 
+           title="INFORMACIÓN DEL INMUEBLE" 
+           icon={<Home size={24} className="text-blue-600" />}
+         >
+           <div className="space-y-6">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <FormInput
+                 label="Dirección"
+                 name="direccion"
+                 value={formState.direccion}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.direccion}
+               />
+               
+               <FormSelect
+                 label="Estrato"
+                 name="estrato"
+                 options={homeData.estratos}
+                 value={formState.estrato}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.estrato}
+               />
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <FormInput
+                 label="Valor comercial"
+                 name="valorComercial"
+                 type="number"
+                 value={formState.valorComercial}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.valorComercial}
+                 placeholder="Ej: 150000000"
+               />
+               
+               <FormInput
+                 label="Años de construcción"
+                 name="anosConstructed"
+                 type="number"
+                 value={formState.anosConstructed}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.anosConstructed}
+                 placeholder="Ej: 10"
+               />
+               
+               <FormInput
+                 label="Área (m²)"
+                 name="area"
+                 type="number"
+                 value={formState.area}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.area}
+                 placeholder="Ej: 80"
+               />
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <FormInput
+                 label="No. de pisos del inmueble"
+                 name="pisoInmueble"
+                 type="number"
+                 value={formState.pisoInmueble}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.pisoInmueble}
+                 placeholder="Ej: 2"
+               />
+               
+               <FormInput
+                 label="No. de pisos del edificio"
+                 name="pisoEdificio"
+                 type="number"
+                 value={formState.pisoEdificio}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.pisoEdificio}
+                 placeholder="Ej: 5"
+               />
+               
+               <FormInput
+                 label="No. de sótanos"
+                 name="sotanos"
+                 type="number"
+                 value={formState.sotanos}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.sotanos}
+                 placeholder="Ej: 1"
+               />
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <FormRadioGroup
+                 name="vigilancia"
+                 label="Vigilancia"
+                 options={homeData.yesNoOptions}
+                 value={formState.vigilancia}
+                 onChange={handleRadioChange}
+                 error={errors.vigilancia}
+               />
+               
+               <FormRadioGroup
+                 name="unidadCerrada"
+                 label="Unidad Cerrada"
+                 options={homeData.yesNoOptions}
+                 value={formState.unidadCerrada}
+                 onChange={handleRadioChange}
+                 error={errors.unidadCerrada}
+               />
+             </div>
+           </div>
+         </FormSection>
+         
+         {/* Valor contenidos */}
+         <FormSection 
+           title="VALOR TOTAL CONTENIDOS" 
+           icon={<Home size={24} className="text-purple-600" />}
+         >
+           <div className="space-y-6">
+             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
+               <h4 className="font-medium text-blue-900 mb-2">Información importante sobre contenidos:</h4>
+               <div className="text-sm text-blue-800 space-y-1">
+                 <p><strong>Eléctricos:</strong> Nevera, lavadora, TV, estufa, microondas, computadores, etc.</p>
+                 <p><strong>No Eléctricos:</strong> Juego de sala, comedor, biblioteca, escritorio, camas, colchones, cuadros, cortinas, prendas de vestir, ropa hogar, etc.</p>
+               </div>
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <FormInput
+                 label="Valor Eléctricos"
+                 name="valorElectricos"
+                 type="number"
+                 value={formState.valorElectricos}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.valorElectricos}
+                 placeholder="Ej: 15000000"
+               />
+               
+               <FormInput
+                 label="Valor No Eléctricos"
+                 name="valorNoElectricos"
+                 type="number"
+                 value={formState.valorNoElectricos}
+                 onChange={handleInputChange}
+                 required
+                 error={errors.valorNoElectricos}
+                 placeholder="Ej: 10000000"
+               />
+             </div>
+             
+             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+               <div className="flex items-center">
+                 <div className="text-green-600 mr-3">
+                   <CheckCircle size={20} />
+                 </div>
+                 <div>
+                   <h4 className="font-medium text-green-900">Valor Total de Contenidos:</h4>
+                   <p className="text-sm text-green-800">
+                     {formState.valorElectricos && formState.valorNoElectricos 
+                       ? `$${(parseInt(formState.valorElectricos) + parseInt(formState.valorNoElectricos)).toLocaleString()}`
+                       : '$0'}
+                   </p>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </FormSection>
 
          {/* Email adicional */}
          <FormSection 
