@@ -10,6 +10,14 @@
 [dev]
   targetPort = 8080
 
+# Redirects para funciones serverless - deben ir primero
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
+# Redirect para SPA - debe ser el último para que React Router maneje las rutas
 [[redirects]]
   from = "/*"
   to = "/index.html"
