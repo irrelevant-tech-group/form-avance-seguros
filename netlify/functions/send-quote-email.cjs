@@ -341,7 +341,8 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
       'transporte': 'Transporte',
       'construccion': 'Todo Riesgo Construcción',
       'cumplimiento': 'Cumplimiento',
-      'arl': 'ARL'
+      'arl': 'ARL',
+      'ciberseguridad': 'CiberSeguridad'
     };
 
     let content = `
@@ -447,6 +448,22 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
             <li><strong>Número de empleados:</strong> ${formData.numeroEmpleados || 'No especificado'}</li>
             <li><strong>ARL actual:</strong> ${formData.arlActual || 'No especificado'}</li>
             <li><strong>Valor aportes mensual solo ARL:</strong> $${formData.valorAportesMensualARL ? parseInt(formData.valorAportesMensualARL).toLocaleString() : 'No especificado'}</li>
+          </ul>`;
+      }
+
+      // Campos específicos de CiberSeguridad
+      if (quoteType === 'ciberseguridad') {
+        content += `
+          <h3>INFORMACIÓN DE LA EMPRESA:</h3>
+          <ul>
+            <li><strong>Nombre de la Empresa:</strong> ${formData.nombreEmpresa || 'No especificado'}</li>
+            <li><strong>NIT:</strong> ${formData.nit || 'No especificado'}</li>
+            <li><strong>Razón Social:</strong> ${formData.razonSocial || 'No especificado'}</li>
+            <li><strong>Tipo de Persona:</strong> ${formData.tipoPersona === 'juridica' ? 'Persona Jurídica' : formData.tipoPersona === 'natural' ? 'Persona Natural' : 'No especificado'}</li>
+            <li><strong>Nombre del Contacto:</strong> ${formData.nombreContacto || 'No especificado'}</li>
+            <li><strong>Teléfono:</strong> ${formData.telefono || 'No especificado'}</li>
+            <li><strong>Correo Electrónico:</strong> ${formData.correoElectronico || 'No especificado'}</li>
+            <li><strong>Dirección:</strong> ${formData.direccion || 'No especificado'}</li>
           </ul>`;
       }
     }
@@ -670,7 +687,8 @@ exports.handler = async (event, context) => {
        quoteType === 'transporte' ? 'Transporte' :
        quoteType === 'construccion' ? 'Todo Riesgo Construcción' :
        quoteType === 'cumplimiento' ? 'Cumplimiento' :
-       quoteType === 'arl' ? 'ARL' : 'Empresarial') :
+       quoteType === 'arl' ? 'ARL' :
+       quoteType === 'ciberseguridad' ? 'CiberSeguridad' : 'Empresarial') :
       (quoteType === 'vehiculos' ? 'Auto' :
        quoteType === 'vida' ? 'Vida' :
        quoteType === 'salud' ? 'Salud' :

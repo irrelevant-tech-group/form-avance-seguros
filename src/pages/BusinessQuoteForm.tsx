@@ -110,12 +110,26 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
         personaContacto: '',
         representanteLegal: '',
         mensajeAdicional: '',
-        
+
         // Campos específicos de ARL
         numeroEmpleados: '',
         arlActual: '',
         valorAportesMensualARL: '',
-        
+
+        aceptaPoliticas: false,
+      };
+    } else if (quoteType === 'ciberseguridad') {
+      // Estructura para CiberSeguridad
+      return {
+        nombreEmpresa: '',
+        nit: '',
+        razonSocial: '',
+        tipoPersona: '', // juridica o natural
+        nombreContacto: '',
+        telefono: '',
+        correoElectronico: '',
+        direccion: '',
+        mensajeAdicional: '',
         aceptaPoliticas: false,
       };
     } else {
@@ -281,6 +295,12 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
         if (!formState.arlActual) newErrors.arlActual = 'El campo ARL actual es requerido';
         if (!formState.valorAportesMensualARL) newErrors.valorAportesMensualARL = 'El campo Valor aportes mensual solo ARL es requerido';
       }
+
+      // Validaciones adicionales para CiberSeguridad
+      if (quoteType === 'ciberseguridad') {
+        if (!formState.nombreEmpresa) newErrors.nombreEmpresa = 'El campo Nombre de la Empresa es requerido';
+        if (!formState.tipoPersona) newErrors.tipoPersona = 'El campo Tipo de Persona es requerido';
+      }
     }
 
     // Validar campo común de aceptación de políticas
@@ -382,6 +402,11 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
         title: 'Cotización ARL',
         description: 'Protección laboral para tus empleados',
         icon: <Users size={24} className="text-red-600" />
+      },
+      'ciberseguridad': {
+        title: 'Cotización CiberSeguridad',
+        description: 'Protección contra riesgos digitales para tu empresa',
+        icon: <Shield size={24} className="text-blue-600" />
       }
     };
 
@@ -906,7 +931,7 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                         error={errors.numeroEmpleados}
                         placeholder="Ej: 25"
                       />
-                      
+
                       <FormInput
                         label="ARL actual"
                         name="arlActual"
@@ -916,7 +941,7 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                         error={errors.arlActual}
                         placeholder="Nombre de la ARL actual"
                       />
-                      
+
                       <FormInput
                         label="Valor aportes mensual solo ARL"
                         name="valorAportesMensualARL"
@@ -935,6 +960,116 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                         <p><strong>Número de empleados:</strong> Total de empleados activos en la empresa</p>
                         <p><strong>ARL actual:</strong> Nombre de la Administradora de Riesgos Laborales actual</p>
                         <p><strong>Valor aportes mensual:</strong> Monto mensual que paga actualmente solo por ARL</p>
+                      </div>
+                    </div>
+                  </div>
+                </FormSection>
+              )}
+
+              {/* Campos específicos de CiberSeguridad */}
+              {quoteType === 'ciberseguridad' && (
+                <FormSection
+                  title="INFORMACIÓN DE LA EMPRESA"
+                  icon={<Shield size={24} className="text-blue-600" />}
+                >
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormInput
+                        label="Nombre de la Empresa"
+                        name="nombreEmpresa"
+                        value={formState.nombreEmpresa}
+                        onChange={handleInputChange}
+                        required
+                        error={errors.nombreEmpresa}
+                        placeholder="Nombre de la empresa"
+                      />
+
+                      <FormInput
+                        label="NIT"
+                        name="nit"
+                        value={formState.nit}
+                        onChange={handleInputChange}
+                        required
+                        error={errors.nit}
+                        placeholder="900123456-1"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormInput
+                        label="Razón Social"
+                        name="razonSocial"
+                        value={formState.razonSocial}
+                        onChange={handleInputChange}
+                        required
+                        error={errors.razonSocial}
+                        placeholder="Razón social de la empresa"
+                      />
+
+                      <FormSelect
+                        label="Tipo de Persona"
+                        name="tipoPersona"
+                        value={formState.tipoPersona}
+                        onChange={handleInputChange}
+                        options={[
+                          { value: '', label: 'Seleccione...' },
+                          { value: 'juridica', label: 'Persona Jurídica' },
+                          { value: 'natural', label: 'Persona Natural' }
+                        ]}
+                        required
+                        error={errors.tipoPersona}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormInput
+                        label="Nombre del Contacto"
+                        name="nombreContacto"
+                        value={formState.nombreContacto}
+                        onChange={handleInputChange}
+                        required
+                        error={errors.nombreContacto}
+                        placeholder="Nombre completo"
+                      />
+
+                      <PhoneInput
+                        label="Teléfono"
+                        name="telefono"
+                        value={formState.telefono}
+                        onChange={handlePhoneChange}
+                        required
+                        error={errors.telefono}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormInput
+                        label="Correo Electrónico"
+                        name="correoElectronico"
+                        type="email"
+                        value={formState.correoElectronico}
+                        onChange={handleInputChange}
+                        required
+                        error={errors.correoElectronico}
+                        placeholder="correo@empresa.com"
+                      />
+
+                      <FormInput
+                        label="Dirección"
+                        name="direccion"
+                        value={formState.direccion}
+                        onChange={handleInputChange}
+                        required
+                        error={errors.direccion}
+                        placeholder="Dirección de la empresa"
+                      />
+                    </div>
+
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                      <h4 className="font-medium text-blue-900 mb-2">Información sobre CiberSeguridad:</h4>
+                      <div className="text-sm text-blue-800 space-y-1">
+                        <p>Protege tu empresa contra amenazas digitales con coberturas de última generación.</p>
+                        <p><strong>Incluye:</strong> Protección de datos, respuesta ante ciberataques, recuperación de sistemas y asesoría especializada.</p>
                       </div>
                     </div>
                   </div>

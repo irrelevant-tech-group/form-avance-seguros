@@ -68,7 +68,8 @@ const DynamicQuotePage = () => {
     shield: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Vida.png",
     pet: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Mascotas.png",
     home: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Hogar.png",
-    travel: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/asistencia_viajes.png"
+    travel: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/asistencia_viajes.png",
+    cyber: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Cyberseguridad.png"
   };
 
   // Si no se ha seleccionado categoría, mostrar la selección mejorada
@@ -1011,6 +1012,57 @@ const DynamicQuotePage = () => {
                  </div>
                </div>
              </motion.div>
+           </div>
+
+           {/* Tercera fila - CiberSeguridad centrado */}
+           <div className="grid md:grid-cols-3 gap-8">
+             <div></div>
+             {/* CiberSeguridad */}
+             <motion.div
+               initial={{ opacity: 0, y: 40 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.6, delay: 0.9 }}
+               onClick={() => setSelectedQuoteType('ciberseguridad')}
+               className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+             >
+               <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
+                 <div className="bg-white rounded-full p-4 shadow-lg">
+                   <img
+                     src={productIconUrls.cyber}
+                     alt="Icono CiberSeguridad"
+                     className="w-16 h-16 object-contain"
+                   />
+                 </div>
+               </div>
+
+               <div className="p-6">
+                 <h2 className="text-xl font-bold text-[#0A4958] mb-3">CiberSeguridad</h2>
+                 <p className="text-gray-600 mb-4">
+                   Protección contra riesgos digitales
+                 </p>
+
+                 <ul className="space-y-2 text-sm text-gray-500 mb-6">
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Protección de datos
+                   </li>
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Ciberataques
+                   </li>
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Recuperación de sistemas
+                   </li>
+                 </ul>
+
+                 <div className="flex items-center text-[#0A4958] hover:text-[#0A6578] transition-colors">
+                   <span className="font-medium">Cotizar ahora</span>
+                   <ChevronRight className="w-5 h-5 ml-1" />
+                 </div>
+               </div>
+             </motion.div>
+             <div></div>
            </div>
          </div>
 
