@@ -49,3 +49,11 @@ export const years = Array.from({ length: 16 }, (_, i) => {
     { value: 'si', label: 'Sí' },
     { value: 'no', label: 'No' },
   ];
+
+  export const travelReasons = [
+    { value: 'turismo', label: 'Turismo' },
+    { value: 'negocios', label: 'Negocios' },
+    { value: 'estudios', label: 'Estudios' },
+    { value: 'trabajo', label: 'Trabajo' },
+    { value: 'otro', label: 'Otro' },
+  ];

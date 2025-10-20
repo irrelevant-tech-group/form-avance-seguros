@@ -453,10 +453,12 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
     
     return content;
   } else {
-    const insuranceType = quoteType === 'vehiculos' ? 'Auto' : 
-                         quoteType === 'vida' ? 'Vida' : 
+    const insuranceType = quoteType === 'vehiculos' ? 'Auto' :
+                         quoteType === 'vida' ? 'Vida' :
                          quoteType === 'salud' ? 'Salud' :
-                         quoteType === 'mascotas' ? 'Mascotas' : 'Hogar';
+                         quoteType === 'mascotas' ? 'Mascotas' :
+                         quoteType === 'credito-vehicular' ? 'Crédito Vehicular' :
+                         quoteType === 'asistencia-viajes' ? 'Asistencia en Viajes' : 'Hogar';
 
     let content = `<h2>Tipo de Seguro: ${insuranceType}</h2>`;
     
@@ -590,8 +592,40 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
           <li><strong>¿Sufre alguna enfermedad?:</strong> ${formData.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
           ${formData.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${formData.cualEnfermedad}</li>` : ''}
         </ul>`;
+    } else if (quoteType === 'credito-vehicular') {
+      content += `
+        <h3>Información de Contacto:</h3>
+        <ul>
+          <li><strong>Nombre Completo:</strong> ${formData.name || 'No especificado'}</li>
+          <li><strong>Teléfono:</strong> ${formData.phone || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
+        </ul>
+
+        <h3>Información del Vehículo:</h3>
+        <ul>
+          <li><strong>Monto a Financiar:</strong> ${formData.loanAmount || 'No especificado'}</li>
+          <li><strong>Marca del Vehículo:</strong> ${formData.vehicleBrand || 'No especificado'}</li>
+          <li><strong>Modelo del Vehículo:</strong> ${formData.vehicleModel || 'No especificado'}</li>
+        </ul>`;
+    } else if (quoteType === 'asistencia-viajes') {
+      content += `
+        <h3>Información de Contacto:</h3>
+        <ul>
+          <li><strong>Nombre Completo:</strong> ${formData.name || 'No especificado'}</li>
+          <li><strong>Teléfono:</strong> ${formData.phone || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
+        </ul>
+
+        <h3>Información del Viaje:</h3>
+        <ul>
+          <li><strong>Fecha de Salida:</strong> ${formData.departureDate || 'No especificado'}</li>
+          <li><strong>Fecha de Regreso:</strong> ${formData.returnDate || 'No especificado'}</li>
+          <li><strong>Origen:</strong> ${formData.origin || 'No especificado'}</li>
+          <li><strong>Destino:</strong> ${formData.destination || 'No especificado'}</li>
+          <li><strong>Motivo del Viaje:</strong> ${formData.travelReason || 'No especificado'}</li>
+        </ul>`;
     }
-    
+
     return content;
   }
 };
@@ -630,17 +664,19 @@ exports.handler = async (event, context) => {
     }
 
     // Determinar el tipo de seguro
-    const insuranceType = isBusinessQuote ? 
+    const insuranceType = isBusinessQuote ?
       (quoteType === 'corporativos' ? 'Corporativos y PYMES' :
        quoteType === 'responsabilidad-civil' ? 'Responsabilidad Civil' :
        quoteType === 'transporte' ? 'Transporte' :
        quoteType === 'construccion' ? 'Todo Riesgo Construcción' :
        quoteType === 'cumplimiento' ? 'Cumplimiento' :
        quoteType === 'arl' ? 'ARL' : 'Empresarial') :
-      (quoteType === 'vehiculos' ? 'Auto' : 
-       quoteType === 'vida' ? 'Vida' : 
+      (quoteType === 'vehiculos' ? 'Auto' :
+       quoteType === 'vida' ? 'Vida' :
        quoteType === 'salud' ? 'Salud' :
-       quoteType === 'mascotas' ? 'Mascotas' : 'Hogar');
+       quoteType === 'mascotas' ? 'Mascotas' :
+       quoteType === 'credito-vehicular' ? 'Crédito Vehicular' :
+       quoteType === 'asistencia-viajes' ? 'Asistencia en Viajes' : 'Hogar');
 
     // Generar contenido específico según el tipo
     const emailContent = generateEmailContent(formData, quoteId, quoteType, isBusinessQuote);

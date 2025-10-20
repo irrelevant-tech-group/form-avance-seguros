@@ -11,6 +11,8 @@ import LifeQuoteForm from './LifeQuoteForm';
 import PetQuoteForm from './PetQuoteForm';
 import HomeQuoteForm from './HomeQuoteForm';
 import BusinessQuoteForm from './BusinessQuoteForm';
+import VehicleLoanForm from './VehicleLoanForm';
+import TravelAssistanceForm from './TravelAssistanceForm';
 
 // Animaciones para las secciones
 const sectionVariants = {
@@ -62,10 +64,11 @@ const DynamicQuotePage = () => {
   // URLs de iconos para productos
   const productIconUrls = {
     car: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Autos.png",
-    heart: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Salud.png", 
+    heart: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Salud.png",
     shield: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Vida.png",
     pet: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Mascotas.png",
-    home: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Hogar.png"
+    home: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Hogar.png",
+    travel: "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/asistencia_viajes.png"
   };
 
   // Si no se ha seleccionado categoría, mostrar la selección mejorada
@@ -324,7 +327,7 @@ const DynamicQuotePage = () => {
             </button>
           </div>
 
-          {/* Opciones de cotización - 3 arriba, 2 abajo */}
+          {/* Opciones de cotización - 3 filas */}
           <div className="max-w-5xl mx-auto">
             {/* Primera fila - 3 productos */}
             <div className="grid md:grid-cols-3 gap-8 mb-8">
@@ -468,7 +471,7 @@ const DynamicQuotePage = () => {
            </div>
 
            {/* Segunda fila - 2 productos centrados */}
-           <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+           <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-8">
              {/* Opción de Mascotas */}
              <motion.div
                initial={{ opacity: 0, y: 40 }}
@@ -479,20 +482,20 @@ const DynamicQuotePage = () => {
              >
                <div className="relative h-48 bg-gradient-to-br from-[#C69C3F] to-[#D5A429] overflow-hidden flex items-center justify-center">
                  <div className="bg-white rounded-full p-4 shadow-lg">
-                   <img 
-                     src={productIconUrls.pet} 
-                     alt="Icono Mascotas" 
+                   <img
+                     src={productIconUrls.pet}
+                     alt="Icono Mascotas"
                      className="w-16 h-16 object-contain"
                    />
                  </div>
                </div>
-               
+
                <div className="p-6">
                  <h2 className="text-xl font-bold text-[#0A4958] mb-3">Póliza de Mascotas</h2>
                  <p className="text-gray-600 mb-4">
                    Protege la salud de tu mejor amigo
                  </p>
-                 
+
                  <ul className="space-y-2 text-sm text-gray-500 mb-6">
                    <li className="flex items-center">
                      <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
@@ -507,7 +510,7 @@ const DynamicQuotePage = () => {
                      Cuidados preventivos
                    </li>
                  </ul>
-                 
+
                  <div className="flex items-center text-[#0A4958] hover:text-[#0A6578] transition-colors">
                    <span className="font-medium">Cotizar ahora</span>
                    <ChevronRight className="w-5 h-5 ml-1" />
@@ -525,20 +528,20 @@ const DynamicQuotePage = () => {
              >
                <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
                  <div className="bg-white rounded-full p-4 shadow-lg">
-                   <img 
-                     src={productIconUrls.home} 
-                     alt="Icono Hogar" 
+                   <img
+                     src={productIconUrls.home}
+                     alt="Icono Hogar"
                      className="w-16 h-16 object-contain"
                    />
                  </div>
                </div>
-               
+
                <div className="p-6">
                  <h2 className="text-xl font-bold text-[#0A4958] mb-3">Póliza de Hogar</h2>
                  <p className="text-gray-600 mb-4">
                    Protege tu hogar y tus bienes
                  </p>
-                 
+
                  <ul className="space-y-2 text-sm text-gray-500 mb-6">
                    <li className="flex items-center">
                      <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
@@ -553,7 +556,102 @@ const DynamicQuotePage = () => {
                      Responsabilidad civil
                    </li>
                  </ul>
-                 
+
+                 <div className="flex items-center text-[#0A4958] hover:text-[#0A6578] transition-colors">
+                   <span className="font-medium">Cotizar ahora</span>
+                   <ChevronRight className="w-5 h-5 ml-1" />
+                 </div>
+               </div>
+             </motion.div>
+           </div>
+
+           {/* Tercera fila - 2 productos nuevos centrados */}
+           <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+             {/* Opción de Crédito Vehicular */}
+             <motion.div
+               initial={{ opacity: 0, y: 40 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.6, delay: 0.8 }}
+               onClick={() => setSelectedQuoteType('credito-vehicular')}
+               className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+             >
+               <div className="relative h-48 bg-gradient-to-br from-[#C69C3F] to-[#D5A429] overflow-hidden flex items-center justify-center">
+                 <div className="bg-white rounded-full p-4 shadow-lg">
+                   <img
+                     src={productIconUrls.car}
+                     alt="Icono Crédito Vehicular"
+                     className="w-16 h-16 object-contain"
+                   />
+                 </div>
+               </div>
+
+               <div className="p-6">
+                 <h2 className="text-xl font-bold text-[#0A4958] mb-3">Crédito Vehicular</h2>
+                 <p className="text-gray-600 mb-4">
+                   Financia el vehículo de tus sueños
+                 </p>
+
+                 <ul className="space-y-2 text-sm text-gray-500 mb-6">
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Tasas competitivas
+                   </li>
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Plazos flexibles
+                   </li>
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Aprobación rápida
+                   </li>
+                 </ul>
+
+                 <div className="flex items-center text-[#0A4958] hover:text-[#0A6578] transition-colors">
+                   <span className="font-medium">Solicitar ahora</span>
+                   <ChevronRight className="w-5 h-5 ml-1" />
+                 </div>
+               </div>
+             </motion.div>
+
+             {/* Opción de Asistencia en Viajes */}
+             <motion.div
+               initial={{ opacity: 0, y: 40 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.6, delay: 0.9 }}
+               onClick={() => setSelectedQuoteType('asistencia-viajes')}
+               className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+             >
+               <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
+                 <div className="bg-white rounded-full p-4 shadow-lg">
+                   <img
+                     src={productIconUrls.travel}
+                     alt="Icono Asistencia en Viajes"
+                     className="w-16 h-16 object-contain"
+                   />
+                 </div>
+               </div>
+
+               <div className="p-6">
+                 <h2 className="text-xl font-bold text-[#0A4958] mb-3">Asistencia en Viajes</h2>
+                 <p className="text-gray-600 mb-4">
+                   Viaja tranquilo con nuestra protección
+                 </p>
+
+                 <ul className="space-y-2 text-sm text-gray-500 mb-6">
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Cobertura médica internacional
+                   </li>
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Asistencia 24/7
+                   </li>
+                   <li className="flex items-center">
+                     <CheckCircle className="w-4 h-4 text-[#C69C3F] mr-2" />
+                     Equipaje protegido
+                   </li>
+                 </ul>
+
                  <div className="flex items-center text-[#0A4958] hover:text-[#0A6578] transition-colors">
                    <span className="font-medium">Cotizar ahora</span>
                    <ChevronRight className="w-5 h-5 ml-1" />
@@ -1006,6 +1104,12 @@ const DynamicQuotePage = () => {
            <LifeQuoteForm />
          ) : selectedQuoteType === 'mascotas' ? (
            <PetQuoteForm />
+         ) : selectedQuoteType === 'hogar' ? (
+           <HomeQuoteForm />
+         ) : selectedQuoteType === 'credito-vehicular' ? (
+           <VehicleLoanForm />
+         ) : selectedQuoteType === 'asistencia-viajes' ? (
+           <TravelAssistanceForm />
          ) : (
            <HomeQuoteForm />
          )
