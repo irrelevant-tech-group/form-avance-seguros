@@ -129,6 +129,7 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
         telefono: '',
         correoElectronico: '',
         direccion: '',
+        objetoSocial: '',
         mensajeAdicional: '',
         aceptaPoliticas: false,
       };
@@ -969,7 +970,7 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
               {/* Campos específicos de CiberSeguridad */}
               {quoteType === 'ciberseguridad' && (
                 <FormSection
-                  title="INFORMACIÓN DE LA EMPRESA"
+                  title="DATOS ADICIONALES"
                   icon={<Shield size={24} className="text-blue-600" />}
                 >
                   <div className="space-y-6">
@@ -984,28 +985,6 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                         placeholder="Nombre de la empresa"
                       />
 
-                      <FormInput
-                        label="NIT"
-                        name="nit"
-                        value={formState.nit}
-                        onChange={handleInputChange}
-                        required
-                        error={errors.nit}
-                        placeholder="900123456-1"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormInput
-                        label="Razón Social"
-                        name="razonSocial"
-                        value={formState.razonSocial}
-                        onChange={handleInputChange}
-                        required
-                        error={errors.razonSocial}
-                        placeholder="Razón social de la empresa"
-                      />
-
                       <FormSelect
                         label="Tipo de Persona"
                         name="tipoPersona"
@@ -1018,50 +997,6 @@ const BusinessQuoteForm = ({ quoteType = 'corporativos' }) => {
                         ]}
                         required
                         error={errors.tipoPersona}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormInput
-                        label="Nombre del Contacto"
-                        name="nombreContacto"
-                        value={formState.nombreContacto}
-                        onChange={handleInputChange}
-                        required
-                        error={errors.nombreContacto}
-                        placeholder="Nombre completo"
-                      />
-
-                      <PhoneInput
-                        label="Teléfono"
-                        name="telefono"
-                        value={formState.telefono}
-                        onChange={handlePhoneChange}
-                        required
-                        error={errors.telefono}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormInput
-                        label="Correo Electrónico"
-                        name="correoElectronico"
-                        type="email"
-                        value={formState.correoElectronico}
-                        onChange={handleInputChange}
-                        required
-                        error={errors.correoElectronico}
-                        placeholder="correo@empresa.com"
-                      />
-
-                      <FormInput
-                        label="Dirección"
-                        name="direccion"
-                        value={formState.direccion}
-                        onChange={handleInputChange}
-                        required
-                        error={errors.direccion}
-                        placeholder="Dirección de la empresa"
                       />
                     </div>
 
