@@ -118,9 +118,25 @@ const VehicleInfoStep = ({
           </p>
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div>
+        <FormSelect
+          label="Estado del vehículo"
+          name="vehicleCondition"
+          options={[
+            { value: 'usado', label: 'Usado' },
+            { value: '0km', label: '0 Km (Nuevo)' }
+          ]}
+          value={formState.vehicleCondition}
+          onChange={handleInputChange}
+          required
+          error={errors.vehicleCondition}
+        />
+      </div>
+
+      {/* Campo condicional para valor de factura en vehículos 0 km */}
+      {formState.vehicleCondition === '0km' && (
+        <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
           <FormInput
             label="Valor de la factura"
             name="invoiceValue"
@@ -128,23 +144,16 @@ const VehicleInfoStep = ({
             value={formState.invoiceValue}
             onChange={handleInputChange}
             error={errors.invoiceValue}
-            placeholder="Solo aplicable para vehículos 0 km"
+            placeholder="Ingrese el valor de la factura"
             prefix="$"
+            required
           />
-        </div>
-        
-       
-      </div>
-      
-      {/* Mensaje informativo cuando se selecciona vehículo 0 km */}
-      {formState.isNewVehicle && (
-        <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-          <div className="flex items-start">
+          <div className="flex items-start mt-3">
             <AlertCircle className="w-5 h-5 text-green-600 mt-0.5 mr-2 flex-shrink-0" />
             <div>
-              <h4 className="text-sm font-medium text-green-900">Vehículo 0 km detectado</h4>
+              <h4 className="text-sm font-medium text-green-900">Valor de factura requerido</h4>
               <p className="text-sm text-green-800 mt-1">
-                Por favor asegúrate de ingresar el valor de la factura ya que es requerido para vehículos nuevos.
+                Para vehículos 0 km es necesario ingresar el valor de la factura para calcular la cotización.
               </p>
             </div>
           </div>

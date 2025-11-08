@@ -28,6 +28,7 @@ const VehicleQuoteForm = () => {
     year: '',
     transmission: '',
     hasLien: 'no',
+    vehicleCondition: '',
     invoiceValue: '',
     isNewVehicle: false,
     
@@ -122,6 +123,10 @@ const VehicleQuoteForm = () => {
       if (!formState.brand) newErrors.brand = 'Este campo es obligatorio';
       if (!formState.year) newErrors.year = 'Este campo es obligatorio';
       if (!formState.transmission) newErrors.transmission = 'Este campo es obligatorio';
+      if (!formState.vehicleCondition) newErrors.vehicleCondition = 'Este campo es obligatorio';
+      if (formState.vehicleCondition === '0km' && !formState.invoiceValue) {
+        newErrors.invoiceValue = 'El valor de la factura es obligatorio para vehículos 0 km';
+      }
     } else if (currentStep === 3) {
       // Validar información adicional
       if (formState.additionalEmail && !/\S+@\S+\.\S+/.test(formState.additionalEmail)) {
@@ -165,7 +170,11 @@ const VehicleQuoteForm = () => {
     if (!formState.brand) allErrors.brand = 'Este campo es obligatorio';
     if (!formState.year) allErrors.year = 'Este campo es obligatorio';
     if (!formState.transmission) allErrors.transmission = 'Este campo es obligatorio';
-    
+    if (!formState.vehicleCondition) allErrors.vehicleCondition = 'Este campo es obligatorio';
+    if (formState.vehicleCondition === '0km' && !formState.invoiceValue) {
+      allErrors.invoiceValue = 'El valor de la factura es obligatorio para vehículos 0 km';
+    }
+
     if (formState.additionalEmail && !/\S+@\S+\.\S+/.test(formState.additionalEmail)) {
       allErrors.additionalEmail = 'Correo electrónico inválido';
     }
@@ -192,7 +201,7 @@ const VehicleQuoteForm = () => {
           if (step === 1) {
             return ['ownerName', 'identification', 'birthDate', 'address', 'phone', 'email'].includes(key);
           } else if (step === 2) {
-            return ['vehicleType', 'brand', 'year', 'transmission'].includes(key);
+            return ['vehicleType', 'brand', 'year', 'transmission', 'vehicleCondition', 'invoiceValue'].includes(key);
           } else if (step === 3) {
             return ['additionalEmail'].includes(key);
           }

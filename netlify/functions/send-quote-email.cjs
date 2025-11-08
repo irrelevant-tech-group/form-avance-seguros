@@ -485,55 +485,45 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
         <h3>Información del Propietario:</h3>
         <ul>
           <li><strong>Nombre del Propietario:</strong> ${formData.ownerName || 'No especificado'}</li>
-          <li><strong>Documento:</strong> ${formData.identification || 'No especificado'}</li>
-          <li><strong>Teléfono:</strong> ${formData.phone || 'No especificado'}</li>
-          <li><strong>Email:</strong> ${formData.email || formData.additionalEmail || 'No especificado'}</li>
-          <li><strong>Dirección:</strong> ${formData.address || 'No especificado'}</li>
+          <li><strong>Cédula:</strong> ${formData.identification || 'No especificado'}</li>
           <li><strong>Fecha de Nacimiento:</strong> ${formData.birthDate || 'No especificado'}</li>
-          <li><strong>Género:</strong> ${formData.gender || 'No especificado'}</li>
-          <li><strong>Estado Civil:</strong> ${formData.maritalStatus || 'No especificado'}</li>
-          <li><strong>Ciudad de Residencia:</strong> ${formData.city || 'No especificado'}</li>
-          <li><strong>Profesión:</strong> ${formData.profession || 'No especificado'}</li>
+          <li><strong>Dirección:</strong> ${formData.address || 'No especificado'}</li>
+          <li><strong>Celular:</strong> ${formData.phone || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || formData.additionalEmail || 'No especificado'}</li>
         </ul>
-        
+
         <h3>Información del Vehículo:</h3>
         <ul>
           <li><strong>Placa:</strong> ${formData.licensePlate || 'Sin placa/Vehículo nuevo'}</li>
-          <li><strong>Marca:</strong> ${formData.brand || 'No especificado'}</li>
-          <li><strong>Modelo:</strong> ${formData.model || 'No especificado'}</li>
-          <li><strong>Año:</strong> ${formData.year || 'No especificado'}</li>
           <li><strong>Tipo de Vehículo:</strong> ${formData.vehicleType || 'No especificado'}</li>
+          <li><strong>Marca:</strong> ${formData.brand || 'No especificado'}</li>
+          <li><strong>Año:</strong> ${formData.year || 'No especificado'}</li>
           <li><strong>Transmisión:</strong> ${formData.transmission || 'No especificado'}</li>
-          <li><strong>Uso del Vehículo:</strong> ${formData.vehicleUse || 'No especificado'}</li>
-          <li><strong>¿Tiene Prenda?:</strong> ${formData.hasLien === 'si' ? 'Sí' : 'No'}</li>
-          ${formData.lienDetails ? `<li><strong>Entidad Financiera:</strong> ${formData.lienDetails}</li>` : ''}
-          <li><strong>Valor Comercial Aproximado:</strong> ${formData.commercialValue ? '$' + parseInt(formData.commercialValue).toLocaleString() : 'No especificado'}</li>
+          <li><strong>Estado del Vehículo:</strong> ${formData.vehicleCondition === '0km' ? '0 Km (Nuevo)' : formData.vehicleCondition === 'usado' ? 'Usado' : 'No especificado'}</li>
+          ${formData.vehicleCondition === '0km' && formData.invoiceValue ? `<li><strong>Valor de la Factura:</strong> $${parseInt(formData.invoiceValue).toLocaleString()}</li>` : ''}
+          <li><strong>¿Tiene Prenda?:</strong> ${formData.hasLien === 'si' ? 'Sí' : formData.hasLien === 'no' ? 'No' : 'No especificado'}</li>
+          ${formData.hasLien === 'si' && formData.lienDetails ? `<li><strong>Entidad Financiera:</strong> ${formData.lienDetails}</li>` : ''}
         </ul>`;
         
-    } else if (quoteType === 'vida' || quoteType === 'salud') {
+    } else if (quoteType === 'salud') {
       content += `
-        <h3>Información Personal:</h3>
+        <h3>Información Personal del Tomador:</h3>
         <ul>
           <li><strong>Nombre Completo:</strong> ${formData.nombreCompleto || 'No especificado'}</li>
           <li><strong>Tipo de Documento:</strong> ${formData.tipoDocumento || 'No especificado'}</li>
           <li><strong>Número de Documento:</strong> ${formData.numeroDocumento || 'No especificado'}</li>
           <li><strong>Fecha de Nacimiento:</strong> ${formData.fechaNacimiento || 'No especificado'}</li>
-          <li><strong>Teléfono/Celular:</strong> ${formData.celular || 'No especificado'}</li>
+          <li><strong>Celular:</strong> ${formData.celular || 'No especificado'}</li>
           <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
-          <li><strong>Ciudad:</strong> ${formData.ciudad || 'No especificado'}</li>
-          <li><strong>Dirección:</strong> ${formData.direccion || 'No especificado'}</li>
-          <li><strong>Género:</strong> ${formData.genero || 'No especificado'}</li>
-          <li><strong>Estado Civil:</strong> ${formData.estadoCivil || 'No especificado'}</li>
-          <li><strong>Profesión:</strong> ${formData.profesion || 'No especificado'}</li>
-          <li><strong>Ingresos Mensuales:</strong> ${formData.ingresosMensuales ? '$' + parseInt(formData.ingresosMensuales).toLocaleString() : 'No especificado'}</li>
+          ${formData.epsActual ? `<li><strong>EPS Actual:</strong> ${formData.epsActual}</li>` : ''}
         </ul>
-        
+
         <h3>Información de Salud:</h3>
         <ul>
-          <li><strong>¿Sufre alguna enfermedad?:</strong> ${formData.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
-          ${formData.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${formData.cualEnfermedad}</li>` : ''}
-          <li><strong>¿Desea asegurar a alguien más?:</strong> ${formData.deseaAsegurarAlguienMas === 'si' ? 'Sí' : 'No'}</li>
-          ${formData.cantidadPersonasAdicionales ? `<li><strong>Cantidad de personas adicionales:</strong> ${formData.cantidadPersonasAdicionales}</li>` : ''}
+          <li><strong>¿Sufre alguna enfermedad?:</strong> ${formData.sufreEnfermedad === 'si' ? 'Sí' : formData.sufreEnfermedad === 'no' ? 'No' : 'No especificado'}</li>
+          ${formData.sufreEnfermedad === 'si' && formData.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${formData.cualEnfermedad}</li>` : ''}
+          <li><strong>¿Desea asegurar a alguien más?:</strong> ${formData.deseaAsegurarAlguienMas === 'si' ? 'Sí' : formData.deseaAsegurarAlguienMas === 'no' ? 'No' : 'No especificado'}</li>
+          ${formData.deseaAsegurarAlguienMas === 'si' && formData.cantidadPersonasAdicionales ? `<li><strong>Cantidad de personas adicionales:</strong> ${formData.cantidadPersonasAdicionales}</li>` : ''}
         </ul>`;
         
       // Personas adicionales
@@ -542,21 +532,78 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
         formData.personasAdicionales.forEach((persona, index) => {
           content += `
             <div style="margin-left: 20px; margin-bottom: 15px; border-left: 3px solid #0A4958; padding-left: 15px;">
-              <h4>Persona ${index + 1}:</h4>
+              <h4>Persona Adicional ${index + 1}:</h4>
               <ul>
-                <li><strong>Nombre:</strong> ${persona.nombreCompleto || 'No especificado'}</li>
+                <li><strong>Nombre Completo:</strong> ${persona.nombreCompleto || 'No especificado'}</li>
                 <li><strong>Tipo de Documento:</strong> ${persona.tipoDocumento || 'No especificado'}</li>
                 <li><strong>Número de Documento:</strong> ${persona.numeroDocumento || 'No especificado'}</li>
                 <li><strong>Fecha de Nacimiento:</strong> ${persona.fechaNacimiento || 'No especificado'}</li>
-                <li><strong>Teléfono:</strong> ${persona.celular || 'No especificado'}</li>
-                <li><strong>Género:</strong> ${persona.genero || 'No especificado'}</li>
-                <li><strong>¿Sufre alguna enfermedad?:</strong> ${persona.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
-                ${persona.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${persona.cualEnfermedad}</li>` : ''}
+                <li><strong>Celular:</strong> ${persona.celular || 'No especificado'}</li>
+                <li><strong>¿Sufre alguna enfermedad?:</strong> ${persona.sufreEnfermedad === 'si' ? 'Sí' : persona.sufreEnfermedad === 'no' ? 'No' : 'No especificado'}</li>
+                ${persona.sufreEnfermedad === 'si' && persona.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${persona.cualEnfermedad}</li>` : ''}
               </ul>
             </div>`;
         });
       }
-      
+
+    } else if (quoteType === 'vida') {
+      content += `
+        <h3>Información Personal del Tomador:</h3>
+        <ul>
+          <li><strong>Nombre Completo:</strong> ${formData.nombreCompleto || 'No especificado'}</li>
+          <li><strong>Tipo de Documento:</strong> ${formData.tipoDocumento || 'No especificado'}</li>
+          <li><strong>Número de Documento:</strong> ${formData.numeroDocumento || 'No especificado'}</li>
+          <li><strong>Edad:</strong> ${formData.edad || 'No especificado'} años</li>
+          <li><strong>Celular:</strong> ${formData.celular || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
+        </ul>
+
+        <h3>Tipo de Seguro y Coberturas:</h3>
+        <ul>
+          <li><strong>Tipo de Seguro:</strong> ${formData.tipoSeguro === 'vida' ? 'Seguro de Vida' : formData.tipoSeguro === 'credito' ? 'Plan Crédito Protegido' : 'No especificado'}</li>
+          ${formData.tipoSeguro === 'vida' ? `
+            ${formData.fallecimientoCualquierCausa ? `<li><strong>Fallecimiento por cualquier causa:</strong> $${parseInt(formData.fallecimientoCualquierCausa).toLocaleString()}</li>` : ''}
+            ${formData.fallecimientoAccidente ? `<li><strong>Fallecimiento por accidente:</strong> $${parseInt(formData.fallecimientoAccidente).toLocaleString()}</li>` : ''}
+            ${formData.enfermedadesGraves ? `<li><strong>Enfermedades graves:</strong> $${parseInt(formData.enfermedadesGraves).toLocaleString()}</li>` : ''}
+            ${formData.invalidezEnfermedad ? `<li><strong>Invalidez por enfermedad:</strong> $${parseInt(formData.invalidezEnfermedad).toLocaleString()}</li>` : ''}
+            ${formData.invalidezAccidente ? `<li><strong>Invalidez por accidente:</strong> $${parseInt(formData.invalidezAccidente).toLocaleString()}</li>` : ''}
+            ${formData.rentaDiaria ? `<li><strong>Renta diaria por hospitalización:</strong> $${parseInt(formData.rentaDiaria).toLocaleString()}</li>` : ''}
+          ` : ''}
+          ${formData.tipoSeguro === 'credito' ? `
+            ${formData.valorCredito ? `<li><strong>Valor del crédito a asegurar:</strong> $${parseInt(formData.valorCredito).toLocaleString()}</li>` : ''}
+            ${formData.entidadFinanciera ? `<li><strong>Entidad financiera:</strong> ${formData.entidadFinanciera}</li>` : ''}
+          ` : ''}
+        </ul>
+
+        <h3>Información de Salud:</h3>
+        <ul>
+          <li><strong>¿Sufre alguna enfermedad?:</strong> ${formData.sufreEnfermedad === 'si' ? 'Sí' : formData.sufreEnfermedad === 'no' ? 'No' : 'No especificado'}</li>
+          ${formData.sufreEnfermedad === 'si' && formData.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${formData.cualEnfermedad}</li>` : ''}
+          ${formData.conduceMoto ? `<li><strong>¿Conduce moto?:</strong> ${formData.conduceMoto === 'si' ? 'Sí' : formData.conduceMoto === 'no' ? 'No' : 'No especificado'}</li>` : ''}
+          <li><strong>¿Desea asegurar a alguien más?:</strong> ${formData.deseaAsegurarAlguienMas === 'si' ? 'Sí' : formData.deseaAsegurarAlguienMas === 'no' ? 'No' : 'No especificado'}</li>
+          ${formData.deseaAsegurarAlguienMas === 'si' && formData.cantidadPersonasAdicionales ? `<li><strong>Cantidad de personas adicionales:</strong> ${formData.cantidadPersonasAdicionales}</li>` : ''}
+        </ul>`;
+
+      // Personas adicionales para vida
+      if (formData.personasAdicionales && formData.personasAdicionales.length > 0) {
+        content += `<h3>Personas Adicionales a Asegurar:</h3>`;
+        formData.personasAdicionales.forEach((persona, index) => {
+          content += `
+            <div style="margin-left: 20px; margin-bottom: 15px; border-left: 3px solid #0A4958; padding-left: 15px;">
+              <h4>Persona Adicional ${index + 1}:</h4>
+              <ul>
+                <li><strong>Nombre Completo:</strong> ${persona.nombreCompleto || 'No especificado'}</li>
+                <li><strong>Tipo de Documento:</strong> ${persona.tipoDocumento || 'No especificado'}</li>
+                <li><strong>Número de Documento:</strong> ${persona.numeroDocumento || 'No especificado'}</li>
+                <li><strong>Edad:</strong> ${persona.edad || 'No especificado'} años</li>
+                <li><strong>Celular:</strong> ${persona.celular || 'No especificado'}</li>
+                <li><strong>¿Sufre alguna enfermedad?:</strong> ${persona.sufreEnfermedad === 'si' ? 'Sí' : persona.sufreEnfermedad === 'no' ? 'No' : 'No especificado'}</li>
+                ${persona.sufreEnfermedad === 'si' && persona.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${persona.cualEnfermedad}</li>` : ''}
+              </ul>
+            </div>`;
+        });
+      }
+
     } else if (quoteType === 'hogar') {
       content += `
         <h3>Información Personal:</h3>
@@ -587,27 +634,22 @@ const generateEmailContent = (formData, quoteId, quoteType, isBusinessQuote) => 
       content += `
         <h3>Información del Propietario:</h3>
         <ul>
-          <li><strong>Nombre del Propietario:</strong> ${formData.nombrePropietario || 'No especificado'}</li>
+          <li><strong>Nombre Completo:</strong> ${formData.nombreCompleto || 'No especificado'}</li>
           <li><strong>Tipo de Documento:</strong> ${formData.tipoDocumento || 'No especificado'}</li>
           <li><strong>Número de Documento:</strong> ${formData.numeroDocumento || 'No especificado'}</li>
-          <li><strong>Teléfono/Celular:</strong> ${formData.celular || 'No especificado'}</li>
-          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
-          <li><strong>Ciudad:</strong> ${formData.ciudad || 'No especificado'}</li>
           <li><strong>Dirección:</strong> ${formData.direccion || 'No especificado'}</li>
+          <li><strong>Celular:</strong> ${formData.celular || 'No especificado'}</li>
+          <li><strong>Email:</strong> ${formData.email || 'No especificado'}</li>
         </ul>
-        
+
         <h3>Información de la Mascota:</h3>
         <ul>
           <li><strong>Nombre de la mascota:</strong> ${formData.nombreMascota || 'No especificado'}</li>
-          <li><strong>Tipo de animal:</strong> ${formData.tipoAnimal || 'No especificado'}</li>
-          <li><strong>Raza:</strong> ${formData.raza || 'No especificado'}</li>
+          <li><strong>Ciudad de residencia:</strong> ${formData.ciudadResidencia || 'No especificado'}</li>
           <li><strong>Edad:</strong> ${formData.edadMascota || 'No especificado'} años</li>
-          <li><strong>Peso:</strong> ${formData.pesoMascota || 'No especificado'} kg</li>
-          <li><strong>Género:</strong> ${formData.generoMascota || 'No especificado'}</li>
-          <li><strong>¿Está esterilizada?:</strong> ${formData.esterilizada === 'si' ? 'Sí' : 'No'}</li>
-          <li><strong>¿Tiene vacunas al día?:</strong> ${formData.vacunasAlDia === 'si' ? 'Sí' : 'No'}</li>
-          <li><strong>¿Sufre alguna enfermedad?:</strong> ${formData.sufreEnfermedad === 'si' ? 'Sí' : 'No'}</li>
-          ${formData.cualEnfermedad ? `<li><strong>¿Cuál enfermedad?:</strong> ${formData.cualEnfermedad}</li>` : ''}
+          <li><strong>Raza:</strong> ${formData.raza || 'No especificado'}</li>
+          ${formData.enfermedadesSufridas ? `<li><strong>Enfermedades sufridas:</strong> ${formData.enfermedadesSufridas}</li>` : '<li><strong>Enfermedades sufridas:</strong> Ninguna</li>'}
+          ${formData.cirugias ? `<li><strong>Cirugías:</strong> ${formData.cirugias}</li>` : '<li><strong>Cirugías:</strong> Ninguna</li>'}
         </ul>`;
     } else if (quoteType === 'credito-vehicular') {
       content += `
