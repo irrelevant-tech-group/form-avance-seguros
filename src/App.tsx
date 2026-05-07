@@ -7,7 +7,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DynamicQuotePage from "./pages/DynamicQuotePage";
 import PersonalInsurancePage from "./pages/PersonalInsurancePage";
+import PersonalProductPage from "./pages/PersonalProductPage";
 import BusinessInsurancePage from "./pages/BusinessInsurancePage";
+import BusinessProductPage from "./pages/BusinessProductPage";
 import SuccessPage from "./pages/SuccessPage";
 
 const queryClient = new QueryClient();
@@ -21,7 +23,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<DynamicQuotePage />} />
           <Route path="/personales" element={<PersonalInsurancePage />} />
+          <Route path="/personales/:product" element={<PersonalProductPage />} />
           <Route path="/empresariales" element={<BusinessInsurancePage />} />
+          <Route path="/empresariales/:product" element={<BusinessProductPage />} />
           <Route path="/exito" element={<SuccessPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

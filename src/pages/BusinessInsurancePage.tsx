@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, Phone, Mail, Shield, Clock, DollarSign, ChevronRight, Building2, Truck, HardHat, FileCheck, Users } from 'lucide-react';
-import BusinessQuoteForm from './BusinessQuoteForm';
 
 const BusinessInsurancePage = () => {
   const navigate = useNavigate();
-  const [selectedQuoteType, setSelectedQuoteType] = useState(null);
+  const goToProduct = (slug: string) => navigate(`/empresariales/${slug}`);
 
   // URL del icono de ciberseguridad
   const cyberIcon = "https://storage.googleapis.com/cluvi/Avance-Seguros/Iconos/Cyberseguridad.png";
 
-  if (!selectedQuoteType) {
-    return (
-      <div className="bg-gray-50 min-h-screen">
+  return (
+    <div className="bg-gray-50 min-h-screen">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#0A4958] to-[#0A6578] py-4 px-4 shadow-md">
           <div className="max-w-5xl mx-auto flex justify-between items-center">
@@ -75,7 +73,7 @@ const BusinessInsurancePage = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                onClick={() => setSelectedQuoteType('corporativos')}
+                onClick={() => goToProduct('corporativos')}
                 className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
@@ -117,7 +115,7 @@ const BusinessInsurancePage = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                onClick={() => setSelectedQuoteType('responsabilidad-civil')}
+                onClick={() => goToProduct('responsabilidad-civil')}
                 className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <div className="relative h-48 bg-gradient-to-br from-[#C69C3F] to-[#D5A429] overflow-hidden flex items-center justify-center">
@@ -159,7 +157,7 @@ const BusinessInsurancePage = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                onClick={() => setSelectedQuoteType('transporte')}
+                onClick={() => goToProduct('transporte')}
                 className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
@@ -204,7 +202,7 @@ const BusinessInsurancePage = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                onClick={() => setSelectedQuoteType('construccion')}
+                onClick={() => goToProduct('construccion')}
                 className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <div className="relative h-48 bg-gradient-to-br from-[#C69C3F] to-[#D5A429] overflow-hidden flex items-center justify-center">
@@ -246,7 +244,7 @@ const BusinessInsurancePage = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.7 }}
-                onClick={() => setSelectedQuoteType('cumplimiento')}
+                onClick={() => goToProduct('cumplimiento')}
                 className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
@@ -288,7 +286,7 @@ const BusinessInsurancePage = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 }}
-                onClick={() => setSelectedQuoteType('arl')}
+                onClick={() => goToProduct('arl')}
                 className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <div className="relative h-48 bg-gradient-to-br from-[#C69C3F] to-[#D5A429] overflow-hidden flex items-center justify-center">
@@ -333,7 +331,7 @@ const BusinessInsurancePage = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.9 }}
-                onClick={() => setSelectedQuoteType('ciberseguridad')}
+                onClick={() => goToProduct('ciberseguridad')}
                 className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <div className="relative h-48 bg-gradient-to-br from-[#0A4958] to-[#0A6578] overflow-hidden flex items-center justify-center">
@@ -410,49 +408,6 @@ const BusinessInsurancePage = () => {
           </motion.div>
         </div>
       </div>
-    );
-  }
-
-  // Si se ha seleccionado un tipo, mostrar el formulario
-  return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#0A4958] to-[#0A6578] py-4 px-4 shadow-md">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <img
-            src="https://storage.googleapis.com/cluvi/Imagenes/logo_avance_blanco.png"
-            alt="Avance Seguros"
-            className="h-12 md:h-16"
-          />
-          <div className="hidden md:flex items-center space-x-4 text-white">
-            <span className="flex items-center">
-              <Phone size={18} className="mr-2" />
-              <a href="tel:+573108483562" className="hover:underline">(310)-848-35-62</a>
-            </span>
-            <span className="flex items-center">
-              <Mail size={18} className="mr-2" />
-              <a href="mailto:info@avanceseguros.com" className="hover:underline">info@avanceseguros.com</a>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Breadcrumb */}
-      <div className="max-w-5xl mx-auto px-4 py-4">
-        <button
-          onClick={() => setSelectedQuoteType(null)}
-          className="flex items-center text-sm text-gray-600 hover:text-[#0A4958] transition-colors"
-        >
-          <ChevronRight className="w-4 h-4 mr-1 transform rotate-180" />
-          Volver a seguros empresariales
-        </button>
-      </div>
-
-      {/* Formulario correspondiente */}
-      <div className="max-w-5xl mx-auto px-4 pb-12">
-        <BusinessQuoteForm quoteType={selectedQuoteType} />
-      </div>
-    </div>
   );
 };
 
